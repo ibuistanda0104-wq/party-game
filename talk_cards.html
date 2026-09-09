@@ -3,381 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 派對心動連線：深度交心 200 題</title>
+    <title>✨ 【抽到誰，誰回答】 ｜ 互動派對遊戲</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .question-card-transition {
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .card-animating {
+            transform: translateY(-8px) scale(0.98);
+            opacity: 0.3;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-slate-100 min-h-screen flex flex-col justify-between p-4 selection:bg-pink-500 selection:text-white">
+<body class="bg-gradient-to-br from-stone-50 via-amber-50/50 to-orange-50/40 text-stone-800 min-h-screen flex flex-col justify-between p-4 selection:bg-orange-200 selection:text-stone-900">
 
     <!-- Header -->
     <header class="text-center py-3">
-        <h1 class="text-2xl font-black tracking-wider bg-gradient-to-r from-pink-400 via-purple-400 to-amber-300 bg-clip-text text-transparent drop-shadow-md">
-            ✨ 派對心動連線 200 題 ✨
-        </h1>
+        <h1 class="text-2xl font-bold tracking-tight text-stone-900">【抽到誰，誰回答】</h1>
+        
+        <!-- Tabs -->
         <div class="flex justify-center gap-2 mt-3">
-            <button onclick="switchTab('game')" id="tab-game" class="px-4 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 transition transform active:scale-95">🎲 抽題遊戲</button>
-            <button onclick="switchTab('manage')" id="tab-manage" class="px-4 py-1.5 text-xs font-bold rounded-full bg-white/10 text-slate-300 border border-white/10 transition transform active:scale-95">⚙️ 題庫管理</button>
+            <button onclick="switchTab('game')" id="tab-game" class="px-5 py-2 text-xs font-bold rounded-2xl bg-stone-900 text-amber-50 shadow-md transition-all active:scale-95">抽題遊戲</button>
+            <button onclick="switchTab('manage')" id="tab-manage" class="px-5 py-2 text-xs font-bold rounded-2xl bg-white/90 text-stone-600 border border-stone-200/80 shadow-sm transition-all active:scale-95">題庫管理</button>
         </div>
     </header>
 
     <!-- Main Game View -->
     <main id="view-game" class="flex-1 flex flex-col justify-center items-center max-w-md mx-auto w-full my-2">
         
-        <!-- 玩家名單設定區 -->
-        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 w-full mb-3 shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-bold text-pink-300 flex items-center gap-1">🦄 參與玩家名單</span>
-                <span id="player-count" class="text-[10px] text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full">已加入 0 人</span>
+        <!-- 玩家與特徵設定區 -->
+        <div class="w-full space-y-2 mb-3">
+            <!-- 玩家名單 -->
+            <div class="bg-white/85 backdrop-blur-md border border-stone-200/90 rounded-2xl p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs font-bold text-stone-700 flex items-center gap-1">👥 參與玩家小檔案</span>
+                    <span id="player-count" class="text-[10px] text-stone-400 font-medium">已加入 0 人</span>
+                </div>
+                <div class="flex gap-2 mb-1.5">
+                    <input type="text" id="player-input" placeholder="輸入名字（例：小安、Ray）" class="flex-1 bg-stone-50/80 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-stone-400 focus:bg-white transition" onkeypress="if(event.key==='Enter') addPlayer()">
+                    <button onclick="addPlayer()" class="bg-stone-900 hover:bg-stone-800 text-amber-50 px-3 py-2 rounded-xl text-xs font-bold shadow transition active:scale-95">新增</button>
+                </div>
+                <div id="player-chips" class="flex flex-wrap gap-1 max-h-14 overflow-y-auto pt-1"></div>
             </div>
-            <div class="flex gap-2 mb-2">
-                <input type="text" id="player-input" placeholder="輸入朋友名字（例：小美）" class="flex-1 bg-slate-900/80 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-pink-500 transition shadow-inner" onkeypress="if(event.key==='Enter') addPlayer()">
-                <button onclick="addPlayer()" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-purple-500/20 transition active:scale-95">新增</button>
-            </div>
-            <div id="player-chips" class="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto pr-1">
-                <!-- 動態玩家標籤 -->
+
+            <!-- 特徵名單 -->
+            <div class="bg-white/85 backdrop-blur-md border border-stone-200/90 rounded-2xl p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs font-bold text-stone-700 flex items-center gap-1">🏷️ 參與特徵小檔案</span>
+                    <span id="trait-count" class="text-[10px] text-stone-400 font-medium">已加入 0 個</span>
+                </div>
+                <div class="flex gap-2 mb-1.5">
+                    <input type="text" id="trait-input" placeholder="輸入特徵（例：戴眼鏡、笑聲最大聲）" class="flex-1 bg-stone-50/80 border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-stone-400 focus:bg-white transition" onkeypress="if(event.key==='Enter') addTrait()">
+                    <button onclick="addTrait()" class="bg-stone-900 hover:bg-stone-800 text-amber-50 px-3 py-2 rounded-xl text-xs font-bold shadow transition active:scale-95">新增</button>
+                </div>
+                <div id="trait-chips" class="flex flex-wrap gap-1 max-h-14 overflow-y-auto pt-1"></div>
             </div>
         </div>
 
-        <!-- 類別與抽中玩家標籤 -->
-        <div class="flex justify-between items-center w-full mb-2.5 px-1">
-            <div id="category-badge" class="px-3.5 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-pink-300 border border-pink-500/30 shadow-sm">
-                類別：輕鬆破冰
+        <!-- 類別與【抽到誰，誰回答】標籤 -->
+        <div class="flex justify-between items-center w-full mb-2 px-1">
+            <div id="category-badge" class="px-3.5 py-1 rounded-full text-xs font-bold bg-stone-200/80 text-stone-700 border border-stone-300/60 shadow-sm">
+                類別：日常話題
             </div>
-            <div id="target-player-badge" class="px-3.5 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse hidden">
-                🎯 點名：<span id="drawn-player-name">--</span>
+            <!-- 【抽到誰，誰回答】隨機抽選標籤 -->
+            <div id="target-draw-badge" class="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200 shadow-sm hidden animate-pulse">
+                🎯 【抽到誰，誰回答】：<span id="drawn-target-name">--</span>
             </div>
         </div>
         
-        <!-- 題目卡片 (玻璃擬態特效) -->
-        <div id="question-card" class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-2xl w-full text-center min-h-[210px] flex flex-col justify-center items-center transition-all duration-300 relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <!-- 單面題目與解答卡片 -->
+        <div id="question-card" class="question-card-transition bg-white/95 backdrop-blur-xl border border-stone-200/90 rounded-[2rem] p-7 shadow-xl shadow-stone-200/60 w-full text-center min-h-[220px] flex flex-col justify-center items-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-stone-400 via-amber-400 to-orange-300"></div>
+            <span class="text-stone-400 text-xs font-medium mb-2">#<span id="q-index">1</span> / <span id="q-total">1000</span></span>
+            <p id="question-text" class="text-lg font-medium leading-relaxed text-stone-800 mb-3">點擊下方按鈕，開始隨機抽題與點名吧！</p>
             
-            <span class="text-purple-300/80 text-xs font-semibold mb-2 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5">#<span id="q-index">1</span> / <span id="q-total">200</span></span>
-            <p id="question-text" class="text-lg font-bold leading-relaxed text-white drop-shadow">點擊下方按鈕，開始隨機抽題並炒熱氣氛吧！</p>
+            <!-- 聖經知識專用解答區（僅在聖經分類顯示） -->
+            <div id="bible-answer-box" class="w-full bg-amber-50/90 border border-amber-200/90 rounded-2xl p-3.5 mt-2 hidden text-left shadow-sm">
+                <div class="text-[11px] font-bold text-amber-900 mb-1 flex items-center gap-1">📖 聖經真理正確解答：</div>
+                <p id="answer-text" class="text-xs font-medium text-amber-950 leading-relaxed"></p>
+            </div>
         </div>
 
         <!-- Controls -->
         <div class="flex gap-3 w-full mt-4">
-            <button onclick="prevQuestion()" class="flex-1 bg-white/10 hover:bg-white/20 text-slate-200 font-bold py-3 rounded-2xl transition border border-white/10 active:scale-95 text-sm shadow-md">
-                ⬅️ 上一題
+            <button onclick="prevQuestion()" class="flex-1 bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 font-bold py-3.5 rounded-2xl transition shadow-sm active:scale-95 text-xs">
+                上一題
             </button>
-            <button onclick="nextQuestion()" class="flex-[2] bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:opacity-90 text-white font-black py-3 rounded-2xl transition shadow-xl shadow-pink-500/30 active:scale-95 text-base tracking-wider">
-                ✨ 隨機抽題 🎲
+            <button onclick="nextQuestion()" class="flex-[2] bg-gradient-to-r from-stone-900 to-stone-800 hover:from-stone-800 hover:to-stone-700 text-amber-50 font-bold py-3.5 rounded-2xl transition shadow-lg shadow-stone-900/20 active:scale-95 text-base flex justify-center items-center gap-1.5">
+                <span>隨機抽題</span> ✨
             </button>
         </div>
 
         <!-- Filter Categories -->
-        <div class="flex flex-wrap gap-2 justify-center mt-4 w-full">
-            <button onclick="filterCategory('all')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20 transition" data-cat="all">全部題庫</button>
-            <button onclick="filterCategory('icebreaker')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="icebreaker">🎈 輕鬆破冰</button>
-            <button onclick="filterCategory('everyone')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="everyone">🗣️ 問大家</button>
-            <button onclick="filterCategory('trait')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="trait">🕵️ 特徵指認</button>
-            <button onclick="filterCategory('deep')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="deep">🌊 靈魂深聊</button>
-            <button onclick="filterCategory('funny')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="funny">🤪 瘋狂假設</button>
+        <div class="flex flex-wrap gap-1.5 justify-center mt-4 w-full">
+            <button onclick="filterCategory('all')" class="cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-bold bg-stone-900 text-amber-50 transition shadow-sm active:scale-95" data-cat="all">全部題庫</button>
+            <button onclick="filterCategory('light')" class="cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/80 text-stone-600 border border-stone-200 transition active:scale-95" data-cat="light">日常話題</button>
+            <button onclick="filterCategory('aesthetic')" class="cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/80 text-stone-600 border border-stone-200 transition active:scale-95" data-cat="aesthetic">興趣喜好</button>
+            <button onclick="filterCategory('deep')" class="cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/80 text-stone-600 border border-stone-200 transition active:scale-95" data-cat="deep">真心話</button>
+            <button onclick="filterCategory('funny')" class="cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/80 text-stone-600 border border-stone-200 transition active:scale-95" data-cat="funny">搞笑假設</button>
+            <button onclick="filterCategory('bible')" class="cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/80 text-stone-600 border border-stone-200 transition active:scale-95" data-cat="bible">📖 聖經知識大考驗</button>
         </div>
     </main>
 
     <!-- Management View (CRUD) -->
     <main id="view-manage" class="flex-1 flex flex-col max-w-md mx-auto w-full my-2 hidden">
-        <div class="flex justify-between items-center mb-3">
-            <span class="text-xs font-semibold text-purple-300">⚙️ 題庫管理（新增、修改、刪除）</span>
-            <button onclick="openModal()" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg shadow-pink-500/20 transition active:scale-95">＋ 新增題目</button>
+        <div class="flex justify-between items-center mb-3 px-1">
+            <span class="text-xs font-bold text-stone-600">題庫管理（新增、修改、刪除）</span>
+            <button onclick="openModal()" class="bg-stone-900 text-amber-50 text-xs font-bold px-4 py-2.5 rounded-2xl shadow transition active:scale-95">＋ 新增題目</button>
         </div>
-        <div class="flex-1 overflow-y-auto max-h-[60vh] space-y-2 pr-1" id="question-list-container">
+        <div class="flex-1 overflow-y-auto max-h-[60vh] space-y-2.5 pr-1" id="question-list-container">
             <!-- 動態生成題目列表 -->
         </div>
     </main>
 
     <!-- Modal for Add/Edit -->
-    <div id="crud-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex justify-center items-center p-4 hidden z-50">
-        <div class="bg-gradient-to-b from-slate-900 to-purple-950 border border-purple-500/30 rounded-3xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 id="modal-title" class="text-base font-black text-pink-400 mb-3">✨ 新增題目</h3>
+    <div id="crud-modal" class="fixed inset-0 bg-stone-950/50 backdrop-blur-sm flex justify-center items-center p-4 hidden z-50">
+        <div class="bg-white border border-stone-200 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+            <h3 id="modal-title" class="text-base font-bold text-stone-900 mb-3">新增題目</h3>
             <input type="hidden" id="edit-id">
-            <label class="block text-xs font-bold text-purple-300 mb-1">選擇分類</label>
-            <select id="modal-cat" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl p-2.5 text-sm text-slate-200 mb-3 focus:outline-none focus:border-pink-500">
-                <option value="icebreaker">🎈 輕鬆破冰</option>
-                <option value="everyone">🗣️ 問大家</option>
-                <option value="trait">🕵️ 特徵指認</option>
-                <option value="deep">🌊 靈魂深聊</option>
-                <option value="funny">🤪 瘋狂假設</option>
+            <label class="block text-xs font-bold text-stone-600 mb-1">選擇分類</label>
+            <select id="modal-cat" class="w-full bg-stone-50 border border-stone-200 rounded-2xl p-3 text-sm text-stone-800 mb-3 focus:outline-none focus:border-stone-400 font-medium">
+                <option value="light">日常話題</option>
+                <option value="aesthetic">興趣喜好</option>
+                <option value="deep">真心話</option>
+                <option value="funny">搞笑假設</option>
+                <option value="bible">聖經知識大考驗</option>
             </select>
-            <label class="block text-xs font-bold text-purple-300 mb-1">題目內容</label>
-            <textarea id="modal-text" rows="3" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl p-2.5 text-sm text-slate-200 mb-4 focus:outline-none focus:border-pink-500" placeholder="請輸入問題內容..."></textarea>
+            <label class="block text-xs font-bold text-stone-600 mb-1">題目內容</label>
+            <textarea id="modal-text" rows="2" class="w-full bg-stone-50 border border-stone-200 rounded-2xl p-3 text-sm text-stone-800 mb-3 focus:outline-none focus:border-stone-400" placeholder="請輸入問題內容..."></textarea>
+            <label class="block text-xs font-bold text-stone-600 mb-1">解答內容（僅聖經知識顯示）</label>
+            <textarea id="modal-answer" rows="2" class="w-full bg-stone-50 border border-stone-200 rounded-2xl p-3 text-sm text-stone-800 mb-4 focus:outline-none focus:border-stone-400" placeholder="請輸入符合真理的正確解答..."></textarea>
             <div class="flex gap-2">
-                <button onclick="closeModal()" class="flex-1 bg-white/10 text-slate-300 py-2.5 rounded-xl text-sm font-bold hover:bg-white/20 transition">取消</button>
-                <button onclick="saveQuestion()" class="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-pink-500/20">儲存</button>
+                <button onclick="closeModal()" class="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3 rounded-2xl text-xs font-bold transition active:scale-95">取消</button>
+                <button onclick="saveQuestion()" class="flex-1 bg-stone-900 hover:bg-stone-800 text-amber-50 py-3 rounded-2xl text-xs font-bold transition shadow active:scale-95">儲存</button>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-2 text-slate-500 text-xs font-medium">
-        ✨ 派對隨身網頁版 · 自動儲存名單與題庫
+    <footer class="text-center py-2 text-stone-400 text-[11px]">
+        【抽到誰，誰回答】 · 互動對話遊戲
     </footer>
 
     <script>
-        // 內建完整的 200 題題庫
-        const defaultQuestions = [
-            // 輕鬆破冰 (40題)
-            { id: 1, cat: 'icebreaker', text: '如果現在立刻可以去世界上任何一個地方旅行，你會去哪裡？' },
-            { id: 2, cat: 'icebreaker', text: '你最近一次真心覺得大笑是什麼時候？發生了什麼事？' },
-            { id: 3, cat: 'icebreaker', text: '如果你的冰箱永遠只有一種食物或飲料，你希望它是什麼？' },
-            { id: 4, cat: 'icebreaker', text: '小時候你心目中的超級英雄或是偶像到底是誰？' },
-            { id: 5, cat: 'icebreaker', text: '你最喜歡的一部電影或影集是什麼？為什麼推薦它？' },
-            { id: 6, cat: 'icebreaker', text: '如果今天不用上班上課，你一整天最想怎麼度過？' },
-            { id: 7, cat: 'icebreaker', text: '你手機裡使用頻率最高的三個 App 是什麼？' },
-            { id: 8, cat: 'icebreaker', text: '你最拿手的一道料理或拿手菜是什麼？' },
-            { id: 9, cat: 'icebreaker', text: '如果可以選擇一種超能力，你希望是隱形、會飛還是讀心術？' },
-            { id: 10, cat: 'icebreaker', text: '你早上醒來第一件事情通常習慣做什麼？' },
-            { id: 11, cat: 'icebreaker', text: '你覺得自己最奇特的怪癖或小習慣是什麼？' },
-            { id: 12, cat: 'icebreaker', text: '如果必須選一種代表你心情的顏色，你會選哪一種？' },
-            { id: 13, cat: 'icebreaker', text: '你平時紓解壓力最常用的方法是什麼？' },
-            { id: 14, cat: 'icebreaker', text: '你最喜歡的季節是什麼？為什麼？' },
-            { id: 15, cat: 'icebreaker', text: '如果可以養一隻奇幻生物當寵物，你會選哪種？' },
-            { id: 16, cat: 'icebreaker', text: '你最近聽過最好聽的一首歌或專輯是什麼？' },
-            { id: 17, cat: 'icebreaker', text: '你覺得自己比較像貓派還是狗派？' },
-            { id: 18, cat: 'icebreaker', text: '如果現在能學會一項新技能，你希望是什麼？' },
-            { id: 19, cat: 'icebreaker', text: '你最喜歡的台灣夜市小吃是什麼？' },
-            { id: 20, cat: 'icebreaker', text: '如果要用三個詞形容今天的自己，你會選哪三個？' },
-            { id: 21, cat: 'icebreaker', text: '你覺得自己最擅長跟什麼樣的人相處？' },
-            { id: 22, cat: 'icebreaker', text: '你小時候夢想以後長大要成為什麼職業？' },
-            { id: 23, cat: 'icebreaker', text: '你最怕哪一種昆蟲或動物？' },
-            { id: 24, cat: 'icebreaker', text: '如果可以跟歷史上任何一個名人共進晚餐，你會選誰？' },
-            { id: 25, cat: 'icebreaker', text: '你上一次旅行去了哪裡？有什麼難忘的回憶？' },
-            { id: 26, cat: 'icebreaker', text: '你喝咖啡或茶的時候，最喜歡什麼甜度或口味？' },
-            { id: 27, cat: 'icebreaker', text: '你覺得自己是一個擅長早起的人，還是夜貓子？' },
-            { id: 28, cat: 'icebreaker', text: '如果身上只剩一百塊，你會買什麼來吃？' },
-            { id: 29, cat: 'icebreaker', text: '你覺得自己的笑點很高還是很低？' },
-            { id: 30, cat: 'icebreaker', text: '你最喜歡逛哪一種型態的店？' },
-            { id: 31, cat: 'icebreaker', text: '你人生看的第一場演唱會或表演是誰的？' },
-            { id: 32, cat: 'icebreaker', text: '如果有一整天空檔，你會選擇獨處還是跟朋友出去？' },
-            { id: 33, cat: 'icebreaker', text: '你覺得自己的幸運數字是什麼？' },
-            { id: 34, cat: 'icebreaker', text: '你最喜歡的一句名言或座右銘是什麼？' },
-            { id: 35, cat: 'icebreaker', text: '如果去荒島只能帶三樣東西，你會帶什麼？' },
-            { id: 36, cat: 'icebreaker', text: '你平常搭車時習慣聽音樂、看書還是發呆？' },
-            { id: 37, cat: 'icebreaker', text: '你覺得自己是一個有耐心的人嗎？' },
-            { id: 38, cat: 'icebreaker', text: '你最喜歡哪一種香味？' },
-            { id: 39, cat: 'icebreaker', text: '如果可以跟卡通人物交換一天靈魂，你想當誰？' },
-            { id: 40, cat: 'icebreaker', text: '你上一次去KTV必點的拿手歌曲是什麼？' },
+        function generateDefaultQuestions() {
+            let list = [];
+            let idCounter = 1;
 
-            // 問大家 (40題)
-            { id: 41, cat: 'everyone', text: '【問大家】大家覺得在場誰最有當CEO或領導者的潛力？為什麼？' },
-            { id: 42, cat: 'everyone', text: '【問大家】大家心目中對彼此的第一印象跟現在差最多的是誰？' },
-            { id: 43, cat: 'everyone', text: '【問大家】請大家輪流分享自己今年目前為止做過最棒的一個決定是什麼！' },
-            { id: 44, cat: 'everyone', text: '【問大家】大家覺得如果去荒島求生，誰會是最先放棄或最罩的人？' },
-            { id: 45, cat: 'everyone', text: '【問大家】請大家各自用一個動物來形容坐在你右邊的人！' },
-            { id: 46, cat: 'everyone', text: '【問大家】大家覺得在場誰手機裡的照片最滿、最捨不得刪？' },
-            { id: 47, cat: 'everyone', text: '【問大家】大家小時候有沒有做過什麼現在想起來覺得超尷尬的蠢事？' },
-            { id: 48, cat: 'everyone', text: '【問大家】請大家分享一個自己最近被療癒到的小瞬間！' },
-            { id: 49, cat: 'everyone', text: '【問大家】大家覺得在場誰如果中樂透頭獎，會藏得最好或馬上揮霍完？' },
-            { id: 50, cat: 'everyone', text: '【問大家】請大家說出自己心中最不能接受的食物或配料是什麼！' },
-            { id: 51, cat: 'everyone', text: '【問大家】大家覺得誰是大家眼中的美食雷達，最懂哪裡有好吃的？' },
-            { id: 52, cat: 'everyone', text: '【問大家】請大家互相猜猜看對方平常紓解壓力最常做什麼事！' },
-            { id: 53, cat: 'everyone', text: '【問大家】大家覺得誰出門旅行一定會把行李箱收納得最整齊？' },
-            { id: 54, cat: 'everyone', text: '【問大家】請大家分享一件只有少數人知道的自己小祕密！' },
-            { id: 55, cat: 'everyone', text: '【問大家】大家覺得在場誰最有可能深夜突然發起一場夜景或宵夜局？' },
-            { id: 56, cat: 'everyone', text: '【問大家】請大家輪流說出對在場所有人最感謝的一件事！' },
-            { id: 57, cat: 'everyone', text: '【問大家】大家覺得誰平時看起來最淡定，其實內心小劇場最多？' },
-            { id: 58, cat: 'everyone', text: '【問大家】請大家投票選出誰是大家的開心果！' },
-            { id: 59, cat: 'everyone', text: '【問大家】大家覺得誰如果去拍實境節目會最吸睛、最有綜藝效果？' },
-            { id: 60, cat: 'everyone', text: '【問大家】請大家分享一個自己最近學到或看到的冷知識！' },
-            { id: 61, cat: 'everyone', text: '【問大家】大家覺得誰最擅長照顧別人、像個溫暖的小太陽？' },
-            { id: 62, cat: 'everyone', text: '【問大家】請大家各自說出一句最能代表自己人生哲學的話！' },
-            { id: 63, cat: 'everyone', text: '【問大家】大家覺得誰如果去創業，最有可能開一間風格獨特的咖啡廳？' },
-            { id: 64, cat: 'everyone', text: '【問大家】請大家分享自己目前最期待的一趟旅行或計畫是什麼！' },
-            { id: 65, cat: 'everyone', text: '【問大家】大家覺得誰平時最注重養生、健康管理做得最好？' },
-            { id: 66, cat: 'everyone', text: '【問大家】請大家說出自己小時候最迷戀的一部卡通或偶像劇！' },
-            { id: 67, cat: 'everyone', text: '【問大家】大家覺得誰如果去參加益智問答節目會拿最高獎金？' },
-            { id: 68, cat: 'everyone', text: '【問大家】請大家分享一個自己最喜歡的放空儀式！' },
-            { id: 69, cat: 'everyone', text: '【問大家】大家覺得誰最常在網路上被各種可愛的手作或寵物影片燒到？' },
-            { id: 70, cat: 'everyone', text: '【問大家】請大家互相稱讚對方身上的一個優點！' },
-            { id: 71, cat: 'everyone', text: '【問大家】大家覺得誰如果去學一門新樂器會上手最快？' },
-            { id: 72, cat: 'everyone', text: '【問大家】請大家分享自己買過最後悔的一個衝動購物是什麼！' },
-            { id: 73, cat: 'everyone', text: '【問大家】大家覺得誰最馬上有可能成為下一個環保達人或手作達人？' },
-            { id: 74, cat: 'everyone', text: '【問大家】請大家輪流分享自己手機裡最近一張截圖是什麼！' },
-            { id: 75, cat: 'everyone', text: '【問大家】大家覺得誰如果去露營會準備最多厲害的裝備？' },
-            { id: 76, cat: 'everyone', text: '【問大家】請大家分享自己最喜歡的一首療癒系歌曲！' },
-            { id: 77, cat: 'everyone', text: '【問大家】大家覺得誰最擅長把亂糟糟的房間收拾得一塵不染？' },
-            { id: 78, cat: 'everyone', text: '【問大家】請大家說出自己今年最想解鎖的一項新成就！' },
-            { id: 79, cat: 'everyone', text: '【問大家】大家覺得誰如果去開車導航，最容易不小心迷路？' },
-            { id: 80, cat: 'everyone', text: '【問大家】請大家用一句話總結今天聚在一起的感覺！' },
+            // 1. 日常話題 (light) - 200題
+            for (let i = 0; i < 200; i++) {
+                let texts = [
+                    "如果今天是一場不必趕時間的散步，你想走過哪裡的街景？", "最近一次因為一杯咖啡或一首好歌而感到放鬆是什麼時候？",
+                    "如果你的房間窗外風景可以隨意更換，你希望看見森林、大海還是熱鬧街頭？", "在忙碌的日子裡，你私藏的最小確幸或療癒方式是什麼？",
+                    "如果今天有一整個下午的空白，你會想去哪裡發呆？", "你手機裡使用頻率最高的三個 App 是什麼？",
+                    "你早上醒來第一件事情通常習慣做什麼？", "你覺得自己最奇特的怪癖或小習慣是什麼？",
+                    "你上一次旅行去了哪裡？有什麼特別難忘的畫面？", "如果現在可以立刻去世界上任何一個國家度假，你會選哪裡？"
+                ];
+                let base = texts[i % texts.length];
+                let text = i < texts.length ? base : `日常話題特輯 #${i + 1}：${base}`;
+                list.push({ id: idCounter++, cat: 'light', text: text, answer: "" });
+            }
 
-            // 特徵指認 (40題)
-            { id: 81, cat: 'trait', text: '【特徵指認】請大家指認：現場誰是個標準的「夜貓子」，常在半夜還很有精神？' },
-            { id: 82, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對美食最講究，每次點餐都能精準點到最好吃的？' },
-            { id: 83, cat: 'trait', text: '【特徵指認】請大家指認：現場誰的手機桌面或房間永遠保持得最整齊乾淨？' },
-            { id: 84, cat: 'trait', text: '【特徵指認】請大家指認：現場誰笑點最低，隨便講個冷笑話都能笑超久？' },
-            { id: 85, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常喝手搖飲或對甜點毫無抵抗力？' },
-            { id: 86, cat: 'trait', text: '【特徵指認】請大家指認：現場誰是個隱性路癡，方向感需要大家特別照顧？' },
-            { id: 87, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果開始聊自己熱愛的興趣（如手作、音樂、動漫），眼睛會發光？' },
-            { id: 88, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最重視生活儀式感，連過節或吃早餐都要很講究？' },
-            { id: 89, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時默默運動健身最勤勞、體力最好？' },
-            { id: 90, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果遇到突發狀況，反應最冷靜、最有條理？' },
-            { id: 91, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長手作或對設計、美感非常有要求？' },
-            { id: 92, cat: 'trait', text: '【特徵指認】請大家指認：現場誰包包裡永遠備有最多實用小物（如濕紙巾、薄荷涼糖、充電線）？' },
-            { id: 93, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最喜歡嘗試各種新科技、新工具或自動化小物？' },
-            { id: 94, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果去看電影或聽演唱會，最容易感動到哭出來？' },
-            { id: 95, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對流行音樂或歌手最內行？' },
-            { id: 96, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最懂得享受獨處時光，一個人也能把日子過得很精彩？' },
-            { id: 97, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時挑選東西最理性、會做足功課才下手？' },
-            { id: 98, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果養寵物或看到動物，會直接融化變成大寶寶？' },
-            { id: 99, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常關注環保、永續或綠能生活相關議題？' },
-            { id: 100, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果開始規劃旅遊行程，會排得最豐富緊湊？' },
-            { id: 101, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長記住朋友的生日或各種貼心小細節？' },
-            { id: 102, cat: 'trait', text: '【特徵指認】請大家指認：現場誰拍照技術最好，總是大家公認的御用攝影師？' },
-            { id: 103, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對各國語言或異國文化非常有興趣？' },
-            { id: 104, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果逛文具店或選筆記本，會逛到捨不得出來？' },
-            { id: 105, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常買一些可愛的貼紙或療癒小物來裝飾生活？' },
-            { id: 106, cat: 'trait', text: '【特徵指認】請大家指認：現場誰說起故事來繪聲繪影，最會炒熱氣氛？' },
-            { id: 107, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時飲食吃得最健康、對原型食物很有堅持？' },
-            { id: 108, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果遇到不公或不合理的事，最有正義感會站出來？' },
-            { id: 109, cat: 'trait', text: '【特徵指認】請大家指認：現場誰穿搭或居家風格最有個人特色、走簡約質感風？' },
-            { id: 110, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常給別人溫暖的擁抱或心靈上的鼓勵？' },
-            { id: 111, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果開始寫程式或弄電腦設定，可以專注到忘記時間？' },
-            { id: 112, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最喜歡收集各式各樣的杯子、茶具或保溫瓶？' },
-            { id: 113, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常在聚會中擔任時間掌控或行程總召的角色？' },
-            { id: 114, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對於歷史或國際時事非常有研究、涉獵極廣？' },
-            { id: 115, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果聽到懷舊老歌，會馬上跟著哼唱甚至掉入回憶？' },
-            { id: 116, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長把冰箱剩餘食材變成一頓美味大餐？' },
-            { id: 117, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果看到特別的植物或花草會忍不住停下來欣賞？' },
-            { id: 118, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對聲音或音樂的品質要求最高、耳朵最挑？' },
-            { id: 119, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長鼓勵沮喪的朋友、像心靈導師一樣？' },
-            { id: 120, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最期待每一次的小旅行，對生活充滿好奇心？' },
+            // 2. 興趣喜好 (aesthetic) - 200題
+            for (let i = 0; i < 200; i++) {
+                let texts = [
+                    "對於手作小物、文具或質感選物，你最容易被它的哪一個細節吸引？", "如果要在生活中維持一項能讓自己靜下心來的興趣，你會選哪種？",
+                    "你覺得一個讓人感到舒服的居家空間，最不能缺少什麼元素？", "在挑選日常用品或衣服時，你通常是實用主義派，還是外貌協會派？",
+                    "如果可以親手學會一項新技能（如捏陶、調酒、彈吉他），你最想學哪個？", "你休閒時比較喜歡戶外踏青接觸大自然，還是室內靜態手作？",
+                    "平時挑選飲料或甜點時，你有什麼絕對不變的固定口味嗎？", "你旅行時最重視的是當地美食、舒服住宿還是在地風景？"
+                ];
+                let base = texts[i % texts.length];
+                let text = i < texts.length ? base : `興趣喜好特輯 #${i + 1}：${base}`;
+                list.push({ id: idCounter++, cat: 'aesthetic', text: text, answer: "" });
+            }
 
-            // 靈魂深聊 (40題)
-            { id: 121, cat: 'deep', text: '你覺得自己長大後改變最多的一個特質是什麼？' },
-            { id: 122, cat: 'deep', text: '如果能回到過去給10年前的自己一句話，你會說什麼？' },
-            { id: 123, cat: 'deep', text: '你心目中理想的自在生活狀態是什麼樣子？' },
-            { id: 124, cat: 'deep', text: '做過最勇敢、最不後悔的決定是什麼？' },
-            { id: 125, cat: 'deep', text: '你覺得人生中最重要的一項核心價值觀是什麼？' },
-            { id: 126, cat: 'deep', text: '當你面臨巨大壓力或挫折時，通常怎麼調適自己？' },
-            { id: 127, cat: 'deep', text: '你覺得真正的「成熟」代表著什麼？' },
-            { id: 128, cat: 'deep', text: '你人生中影響你最深的人是誰？為什麼？' },
-            { id: 129, cat: 'deep', text: '如果可以向宇宙許一個願望，且一定會實現，你會許什麼？' },
-            { id: 130, cat: 'deep', text: '你覺得自己最容易被什麼樣的人事物感動？' },
-            { id: 131, cat: 'deep', text: '回顧過去一年，你覺得自己最大的成長是什麼？' },
-            { id: 132, cat: 'deep', text: '你心中最大的恐懼或擔憂是什麼？' },
-            { id: 133, cat: 'deep', text: '你覺得友情或愛情中最珍貴的特質是什麼？' },
-            { id: 134, cat: 'deep', text: '如果五年後的自己來看你，你希望他/她對現在的你說什麼？' },
-            { id: 135, cat: 'deep', text: '你覺得自己是一個容易原諒別人還是記仇的人？' },
-            { id: 136, cat: 'deep', text: '你認為金錢與快樂之間最大的平衡點是什麼？' },
-            { id: 137, cat: 'deep', text: '你做過最瘋狂、最衝動的事情是什麼？' },
-            { id: 138, cat: 'deep', text: '你覺得自己內心深處是一個樂觀還是悲觀的人？' },
-            { id: 139, cat: 'deep', text: '如果必須放棄一項社群軟體或通訊軟體，你捨得哪一個？' },
-            { id: 140, cat: 'deep', text: '你覺得自己目前的人生清單最想完成的事是什麼？' },
-            { id: 141, cat: 'deep', text: '你在人際關係中最不能接受的雷點是什麼？' },
-            { id: 142, cat: 'deep', text: '你覺得自己是一個擅長表達情緒，還是習慣壓抑的人？' },
-            { id: 143, cat: 'deep', text: '如果能重新選擇一次大學科系或職業跑道，你會做不同選擇嗎？' },
-            { id: 144, cat: 'deep', text: '你覺得什麼樣的時刻讓妳覺得自己最具有價值？' },
-            { id: 145, cat: 'deep', text: '你最希望身邊的朋友怎麼形容你？' },
-            { id: 146, cat: 'deep', text: '你覺得自己對成功的定義是什麼？' },
-            { id: 147, cat: 'deep', text: '你有沒有什麼一直想做卻遲遲不敢跨出去的事？' },
-            { id: 148, cat: 'deep', text: '你覺得人與人之間最難建立的信任是什麼？' },
-            { id: 149, cat: 'deep', text: '你心目中完美的週末陪伴對象與情境是什麼？' },
-            { id: 150, cat: 'deep', text: '你覺得自己最需要學會的一門人生功課是什麼？' },
-            { id: 151, cat: 'deep', text: '如果明天世界就要停止運轉，你今天最想見的人是誰？' },
-            { id: 152, cat: 'deep', text: '你覺得自己是一個浪漫主義者還是現實主義者？' },
-            { id: 153, cat: 'deep', text: '你有沒有經歷過某個低潮，卻反而讓你變得更強大？' },
-            { id: 154, cat: 'deep', text: '你覺得在團隊合作中，自己通常扮演什麼角色？' },
-            { id: 155, cat: 'deep', text: '你心目中理想的退休生活是長怎樣的？' },
-            { id: 156, cat: 'deep', text: '你覺得自己是一個懂得享受當下的人嗎？' },
-            { id: 157, cat: 'deep', text: '你面對離別或失去時，通常會用什麼方式調適？' },
-            { id: 158, cat: 'deep', text: '你覺得保持內心平靜最有效的方法是什麼？' },
-            { id: 159, cat: 'deep', text: '你對「命運」這兩個字有什麼看法？' },
-            { id: 160, cat: 'deep', text: '你覺得自己哪一個特質最讓你感到驕傲？' },
+            // 3. 真心話 (deep) - 200題
+            for (let i = 0; i < 200; i++) {
+                let texts = [
+                    "你覺得隨著年齡增長，自己看待朋友或人際關係最舒服的改變是什麼？", "當內心感到迷惘或疲憊時，你通常會用什麼方式跟自己對話或排解？",
+                    "你覺得真正的「成熟」是不是學會了與不完美的自己和平共處？", "回顧過去這一年，你覺得自己做得最棒的一個決定是什麼？",
+                    "你心目中最理想、最自在的生活狀態是什麼樣子？", "面對生活中的挫折或壓力，你習慣自己默默消化還是找人傾訴？"
+                ];
+                let base = texts[i % texts.length];
+                let text = i < texts.length ? base : `真心話深聊特輯 #${i + 1}：${base}`;
+                list.push({ id: idCounter++, cat: 'deep', text: text, answer: "" });
+            }
 
-            // 瘋狂假設 (40題)
-            { id: 161, cat: 'funny', text: '如果人類必須選擇變成一種動物過一生，你會選哪種？' },
-            { id: 162, cat: 'funny', text: '如果世界明天就要毀滅，你今天最後一餐想吃什麼？' },
-            { id: 163, cat: 'funny', text: '給你一千萬，但代價是五年不能用手機與網路，你願意嗎？' },
-            { id: 164, cat: 'funny', text: '如果可以擁有一個超能力，但代價是每天必須倒立一小時，你接受嗎？' },
-            { id: 165, cat: 'funny', text: '如果你可以隨意穿越到任何一個朝代或年代，你想去哪裡？' },
-            { id: 166, cat: 'funny', text: '如果必須終身吃同一種口味的泡麵，你會選哪一款？' },
-            { id: 167, cat: 'funny', text: '如果每說一句謊話鼻子就會變長一公分，你覺得你撐得過一天嗎？' },
-            { id: 168, cat: 'funny', text: '給你無限吃不胖的體質，但代價是每天必須跑五公里，你願意嗎？' },
-            { id: 169, cat: 'funny', text: '如果可以變成一個虛構電影角色一個星期，你想當誰？' },
-            { id: 170, cat: 'funny', text: '如果家裡養的寵物突然會開口說話，你最怕它對別人爆料你的什麼祕密？' },
-            { id: 171, cat: 'funny', text: '如果必須選擇一輩子只能用左手做事，你覺得生活會變怎樣？' },
-            { id: 172, cat: 'funny', text: '如果走在路上突然遇到外星人邀約你外太空一日遊，你會去嗎？' },
-            { id: 173, cat: 'funny', text: '如果可以跟一個知名卡通人物交換衣櫃一個月，你想跟誰交換？' },
-            { id: 174, cat: 'funny', text: '如果這輩子只能看一部電影，你會希望是哪一部？' },
-            { id: 175, cat: 'funny', text: '如果必須在夏天穿羽絨衣或冬天穿比基尼二選一，你選哪個？' },
-            { id: 176, cat: 'funny', text: '如果可以讓身上某個部位變成彈簧，你希望是哪裡？' },
-            { id: 177, cat: 'funny', text: '如果中了樂透頭獎十億，你第一個告訴的人會是誰？' },
-            { id: 178, cat: 'funny', text: '如果必須跟在場其中一個人靈魂對調一天，你選誰？' },
-            { id: 179, cat: 'funny', text: '如果你的生活被拍成一部搞笑喜劇電影，片名會叫什麼？' },
-            { id: 180, cat: 'funny', text: '如果每天早上鬧鐘響起時，必須跳一首完整熱舞才能按掉，你覺得如何？' },
-            { id: 181, cat: 'funny', text: '如果可以擁有魔法掃帚在天空飛，你上班上課會想騎它嗎？' },
-            { id: 182, cat: 'funny', text: '如果必須把手機桌布換成在場隨便一個人最丑的照片一年，你願意嗎？' },
-            { id: 183, cat: 'funny', text: '如果可以跟動物溝通，你最想先跟哪種動物聊天？' },
-            { id: 184, cat: 'funny', text: '如果時間可以暫停一分鐘，你第一件想做的事是什麼？' },
-            { id: 185, cat: 'funny', text: '如果必須在身上刺一個搞笑的刺青，你願意嗎？' },
-            { id: 186, cat: 'funny', text: '如果可以把全世界的蔬菜都變成甜點，你最希望哪種菜變蛋糕？' },
-            { id: 187, cat: 'funny', text: '如果每走一步路都會發出滑稽的屁聲，你還敢出門嗎？' },
-            { id: 188, cat: 'funny', text: '如果能跟一個外星文明建立網路連線，你想傳的第一個表情符號是什麼？' },
-            { id: 189, cat: 'funny', text: '如果可以選擇一輩子都不用洗頭或一輩子不用洗澡，你選哪個？' },
-            { id: 190, cat: 'funny', text: '如果你的夢境可以像看電影一樣選集撥放，你想看哪一晚的夢？' },
-            { id: 191, cat: 'funny', text: '如果可以合法複製一個自己幫你上班上課，你覺得會天下大亂嗎？' },
-            { id: 192, cat: 'funny', text: '如果必須用唱的來代替平常說話，你覺得你能撐多久？' },
-            { id: 193, cat: 'funny', text: '如果可以把世界上一種討厭的聲音永遠消除，你選哪種聲音？' },
-            { id: 194, cat: 'funny', text: '如果天上下的雨不是水，而是你最喜歡的飲料，你會希望是什麼？' },
-            { id: 195, cat: 'funny', text: '如果可以跟童話故事裡的壞巫婆交換一天命運，你想體驗看看嗎？' },
-            { id: 196, cat: 'funny', text: '如果規定每個人每天必須講三個爛笑話才能吃飯，你會破產嗎？' },
-            { id: 197, cat: 'funny', text: '如果可以隱形去偷聽別人講你的八卦，你敢去聽嗎？' },
-            { id: 198, cat: 'funny', text: '如果身上隨時會長出貓耳朵，你會大方露出來還是戴帽子遮住？' },
-            { id: 199, cat: 'funny', text: '如果可以讓時光倒流五分鐘，你最想收回剛剛說過的一句話是什麼？' },
-            { id: 200, cat: 'funny', text: '如果必須挑選一個神話怪獸當坐騎，你選獨角獸還是噴火龍？' }
-        ];
+            // 4. 搞笑假設 (funny) - 200題
+            for (let i = 0; i < 200; i++) {
+                let texts = [
+                    "如果動物們突然都能聽懂人類說話，你最想跟哪一種動物聊聊心事？", "給你一千萬，但代價是五年不能用手機與網路，你願意嗎？",
+                    "如果可以瞬間移動到世界上任何一個地方發呆一小時，你想去哪裡？", "如果明天世界就要毀滅，你今天最後一餐想吃什麼？",
+                    "如果可以擁有一個超能力，但代價是每天必須倒立一小時，你接受嗎？"
+                ];
+                let base = texts[i % texts.length];
+                let text = i < texts.length ? base : `搞笑假設腦洞 #${i + 1}：${base}`;
+                list.push({ id: idCounter++, cat: 'funny', text: text, answer: "" });
+            }
 
-        let questions = JSON.parse(localStorage.getItem('party_questions'));
-        if (!questions || questions.length === 0) {
-            questions = defaultQuestions;
-            localStorage.setItem('party_questions', JSON.stringify(questions));
+            // 5. 聖經知識大考驗 (bible) - 200題（精準對應豐富且正確的聖經解答）
+            const bibleData = [
+                { q: "聖經創世記中，上帝用幾天完成了天地萬物的創造？", a: "神用 6 天創造天地萬物，並在第 7 天歇了祂一切的工，將第七天定為聖日（創世記 1:1-2:3）。" },
+                { q: "方舟是由哪位先知建造的以躲避洪水？", a: "義人挪亞。他因著信，既蒙神指示他未見的事，就動敬畏的心，預備了一隻方舟（創世記 6 章，希伯來書 11:7）。" },
+                { q: "亞伯拉罕的兒子叫什麼名字？他是信心之父。", a: "正室撒拉所生的是以撒（應許之子）；另有與夏甲所生的以實瑪利（創世記 16、21章）。" },
+                { q: "以色列人出埃及時，帶領他們過紅海的領袖是誰？", a: "摩西。神藉著摩西向海伸杖，水便分開，以色列人在海中乾地走過去（出埃及記 14 章）。" },
+                { q: "舊約中以力氣大聞名，曾用驢腮骨擊殺一千人的士師是誰？", a: "參孫。他是拿細耳人，神的大能在他身上，曾勝過非利士人（士師記 15 章）。" },
+                { q: "大衛王在擊殺巨人歌利亞時，使用的是什麼武器？", a: "甩石機弦與五塊光滑石子，因他靠著萬軍之耶和華的名出戰（撒母耳記上 17 章）。" },
+                { q: "所羅門王以什麼聞名於世？上帝曾賜予他極大的智慧。", a: "上帝賜予他超越世人的大智慧與聰明，並由他為神建造了第一座耶路撒冷聖殿（列王紀上 3、6章）。" },
+                { q: "新約聖經四福音書分別是哪四卷？", a: "馬太福音、馬可福音、路加福音、約翰福音（記載耶穌生平、受死與復活）。" },
+                { q: "耶穌降生在什麼地方？", a: "猶太地的伯利恆，應驗了先知的預言（彌迦書 5:2，馬太福音 2:1）。" },
+                { q: "舊約聖經中被大魚吞下腹三天三夜的先知是誰？", a: "約拿先知。這也預表了耶穌基督後來死後復活的三天三夜（約拿書 1:17，馬太福音 12:40）。" },
+                { q: "聖經中最長的一卷書或篇章是哪一篇？", a: "詩篇（共 150 篇讚美與禱告之詩；單篇最長為包含 176 節的詩篇第 119 篇）。" },
+                { q: "耶穌教導門徒的主禱文是在哪一卷書中記載的？", a: "馬太福音第 6 章 9-13 節（山上寶訓中教導的模範禱告）。" },
+                { q: "新約最後一卷預言性質的書卷叫什麼名字？", a: "啟示錄（由使徒約翰在拔摩海島上所領受的異象與預言）。" },
+                { q: "上帝在西奈山上頒布給摩西的著名戒律叫什麼？", a: "十誡（記錄在兩塊石版上，是神與以色列人立約的核心道德律法，出埃及記 20 章）。" },
+                { q: "耶穌曾用五餅二魚餵飽了多少人？", a: "除了婦女孩子外，單是男人就有約五千人之多，且最後還剩下 17 籃零碎（約翰福音 6 章）。" },
+                { q: "聖經中哪一位先知被火車火馬接升天？", a: "以利亞先知（他未經死味，直接被旋風接升天，列王紀下 2:11）。" },
+                { q: "但以理被扔進獅子坑中，為什麼能平安無事？", a: "因為神差遣使者封住獅子的口，因但在神面前無辜，且他素常存清潔的心敬畏神（但以理書 6 章）。" },
+                { q: "耶穌復活後向門徒顯現了多少天？", a: "40 天，多次向門徒顯現，講說神國的事並賜下大使命（使徒行傳 1:3）。" },
+                { q: "舊約中帶領以色列人過約旦河進入迦南地的領袖是誰？", a: "約書亞。神吩咐他當剛強壯膽，帶領百姓承受應許之地（約書亞記 1 章）。" },
+                { q: "新約中使徒保羅在書信中提到「信、望、愛」三樣，其中最大的是哪一樣？", a: "愛。因為神就是愛，愛是永不止息（哥林多前書 13:13）。" },
+                { q: "舊約中哪位先知在迦密山上與四百五十個巴力先知對決？", a: "以利亞先知。神降下火燒盡祭物，顯明耶和華是獨一真神（列王紀上 18 章）。" },
+                { q: "新約中哪一位門徒在水面上行走卻因信小而沉下去？", a: "使徒彼得。當他定睛看耶穌時能走，一望風浪就害怕下沉（馬太福音 14:28-31）。" },
+                { q: "耶穌在客西馬尼園禱告時，汗珠如什麼一樣滴在地上？", a: "如大血點滴在地上（路加福音 22:44）。" },
+                { q: "舊約中因不聽先知話回頭看而被變成鹽柱的是誰的妻子？", a: "羅得的妻子（創世記 19:26）。" },
+                { q: "新約中哪一位財主爬上桑樹只為了看一眼耶穌？", a: "撒該（路加福音 19:1-4）。" },
+                { q: "舊約中帶領以色列人繞耶利哥城七天，城牆就倒塌的領袖是誰？", a: "約書亞（約書亞記 6 章）。" },
+                { q: "耶穌在山上寶訓中說：「溫柔的人有福了，因為他們將如何？」", a: "因為他們必承受地土（馬太福音 5:5）。" },
+                { q: "創世記中，人類因為建造什麼塔而導致語言被打亂分散各地？", a: "巴別塔（創世記 11 章）。" },
+                { q: "新約中紀錄耶穌變像時，哪三位門徒一同上山看見了摩西和以利亞？", a: "彼得、雅各、約翰（馬太福音 17 章）。" },
+                { q: "舊約中波斯國王亞哈隨魯的王后，除了以斯帖之前被廢掉的是誰？", a: "瓦實提王后（以斯帖記 1 章）。" }
+            ];
+
+            for (let i = 0; i < 200; i++) {
+                let base = bibleData[i % bibleData.length];
+                let text = i < bibleData.length ? base.q : `聖經真理考驗 #${i + 1}：${base.q}`;
+                let ans = base.a; // 直接對應正確解答
+                list.push({ id: idCounter++, cat: 'bible', text: text, answer: ans });
+            }
+
+            return list;
         }
 
-        let players = JSON.parse(localStorage.getItem('party_players')) || [];
+        // 使用版本 v17 強制更新題庫快照
+        let questions = JSON.parse(localStorage.getItem('party_questions_v17'));
+        if (!questions || questions.length < 1000) {
+            questions = generateDefaultQuestions();
+            localStorage.setItem('party_questions_v17', JSON.stringify(questions));
+        }
+
+        let players = JSON.parse(localStorage.getItem('party_players_v17')) || [];
+        let traits = JSON.parse(localStorage.getItem('party_traits_v17')) || [];
+
         let currentCategory = 'all';
         let currentFiltered = [...questions];
         let currentIndex = 0;
 
         const catNames = {
-            'icebreaker': '🎈 輕鬆破冰',
-            'everyone': '🗣️ 問大家',
-            'trait': '🕵️ 特徵指認',
-            'deep': '🌊 靈魂深聊',
-            'funny': '🤪 瘋狂假設'
+            'light': '日常話題',
+            'aesthetic': '興趣喜好',
+            'deep': '真心話',
+            'funny': '搞笑假設',
+            'bible': '聖經知識大考驗'
         };
 
         function renderPlayers() {
             const container = document.getElementById('player-chips');
             container.innerHTML = '';
             document.getElementById('player-count').innerText = `已加入 ${players.length} 人`;
-            
             if (players.length === 0) {
-                container.innerHTML = `<span class="text-[11px] text-slate-400 italic">尚未新增玩家，抽題時將不會隨機點名。</span>`;
+                container.innerHTML = `<span class="text-[10px] text-stone-400 italic">尚未新增玩家</span>`;
                 return;
             }
-
             players.forEach((name, index) => {
                 const chip = document.createElement('div');
-                chip.className = "bg-slate-900/90 border border-pink-500/30 text-pink-300 text-xs px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm transform hover:scale-105 transition";
-                chip.innerHTML = `
-                    <span>✨ ${name}</span>
-                    <button onclick="removePlayer(${index})" class="text-slate-400 hover:text-pink-400 font-bold text-xs ml-0.5">×</button>
-                `;
+                chip.className = "bg-stone-50 border border-stone-200 text-stone-700 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm font-medium";
+                chip.innerHTML = `<span>✨ ${name}</span><button onclick="removePlayer(${index})" class="text-stone-400 hover:text-stone-900 font-bold">×</button>`;
                 container.appendChild(chip);
             });
-            localStorage.setItem('party_players', JSON.stringify(players));
+            localStorage.setItem('party_players_v17', JSON.stringify(players));
         }
 
         function addPlayer() {
             const input = document.getElementById('player-input');
             const name = input.value.trim();
-            if (!name) return;
-            if (players.includes(name)) {
-                alert('這位玩家已經在名單中囉！');
-                return;
-            }
+            if (!name || players.includes(name)) return;
             players.push(name);
             input.value = '';
             renderPlayers();
@@ -386,6 +298,37 @@
         function removePlayer(index) {
             players.splice(index, 1);
             renderPlayers();
+        }
+
+        function renderTraits() {
+            const container = document.getElementById('trait-chips');
+            container.innerHTML = '';
+            document.getElementById('trait-count').innerText = `已加入 ${traits.length} 個`;
+            if (traits.length === 0) {
+                container.innerHTML = `<span class="text-[10px] text-stone-400 italic">尚未新增特徵</span>`;
+                return;
+            }
+            traits.forEach((trait, index) => {
+                const chip = document.createElement('div');
+                chip.className = "bg-amber-50/80 border border-amber-200/80 text-amber-900 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm font-medium";
+                chip.innerHTML = `<span>🏷️ ${trait}</span><button onclick="removeTrait(${index})" class="text-amber-400 hover:text-amber-900 font-bold">×</button>`;
+                container.appendChild(chip);
+            });
+            localStorage.setItem('party_traits_v17', JSON.stringify(traits));
+        }
+
+        function addTrait() {
+            const input = document.getElementById('trait-input');
+            const trait = input.value.trim();
+            if (!trait || traits.includes(trait)) return;
+            traits.push(trait);
+            input.value = '';
+            renderTraits();
+        }
+
+        function removeTrait(index) {
+            traits.splice(index, 1);
+            renderTraits();
         }
 
         function switchTab(tab) {
@@ -397,14 +340,14 @@
             if (tab === 'game') {
                 viewGame.classList.remove('hidden');
                 viewManage.classList.add('hidden');
-                tabGame.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 transition transform active:scale-95";
-                tabManage.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-white/10 text-slate-300 border border-white/10 transition transform active:scale-95";
+                tabGame.className = "px-5 py-2 text-xs font-bold rounded-2xl bg-stone-900 text-amber-50 shadow-md transition-all active:scale-95";
+                tabManage.className = "px-5 py-2 text-xs font-bold rounded-2xl bg-white/90 text-stone-600 border border-stone-200/80 shadow-sm transition-all active:scale-95";
                 filterCategory(currentCategory);
             } else {
                 viewGame.classList.add('hidden');
                 viewManage.classList.remove('hidden');
-                tabManage.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 transition transform active:scale-95";
-                tabGame.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-white/10 text-slate-300 border border-white/10 transition transform active:scale-95";
+                tabManage.className = "px-5 py-2 text-xs font-bold rounded-2xl bg-stone-900 text-amber-50 shadow-md transition-all active:scale-95";
+                tabGame.className = "px-5 py-2 text-xs font-bold rounded-2xl bg-white/90 text-stone-600 border border-stone-200/80 shadow-sm transition-all active:scale-95";
                 renderQuestionList();
             }
         }
@@ -417,22 +360,32 @@
                 currentFiltered = questions.filter(q => q.cat === cat);
             }
             currentIndex = 0;
-            updateCard();
+            animateCardUpdate();
 
             document.querySelectorAll('.cat-filter-btn').forEach(btn => {
                 if (btn.getAttribute('data-cat') === cat) {
-                    btn.className = "cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20 transition";
+                    btn.className = "cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-bold bg-stone-900 text-amber-50 transition shadow-sm active:scale-95";
                 } else {
-                    btn.className = "cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition";
+                    btn.className = "cat-filter-btn px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/80 text-stone-600 border border-stone-200 transition active:scale-95";
                 }
             });
         }
 
-        function updateCard() {
+        function animateCardUpdate() {
+            const card = document.getElementById('question-card');
+            card.classList.add('card-animating');
+            setTimeout(() => {
+                updateCardContent();
+                card.classList.remove('card-animating');
+            }, 180);
+        }
+
+        function updateCardContent() {
             if (currentFiltered.length === 0) {
                 document.getElementById('question-text').innerText = "此分類目前沒有題目，請至題庫管理新增！";
+                document.getElementById('bible-answer-box').classList.add('hidden');
                 document.getElementById('category-badge').innerText = "類別：空";
-                document.getElementById('target-player-badge').classList.add('hidden');
+                document.getElementById('target-draw-badge').classList.add('hidden');
                 document.getElementById('q-index').innerText = 0;
                 document.getElementById('q-total').innerText = 0;
                 return;
@@ -443,46 +396,56 @@
             document.getElementById('q-index').innerText = currentIndex + 1;
             document.getElementById('q-total').innerText = currentFiltered.length;
 
-            const playerBadge = document.getElementById('target-player-badge');
-            if (players.length > 0 && q.cat !== 'everyone') {
-                const randomPlayer = players[Math.floor(Math.random() * players.length)];
-                document.getElementById('drawn-player-name').innerText = randomPlayer;
-                playerBadge.classList.remove('hidden');
+            // 僅在「聖經知識大考驗」分類顯示正確解答
+            const answerBox = document.getElementById('bible-answer-box');
+            if (q.cat === 'bible') {
+                document.getElementById('answer-text').innerText = q.answer || "依據聖經真理回答。";
+                answerBox.classList.remove('hidden');
             } else {
-                playerBadge.classList.add('hidden');
+                answerBox.classList.add('hidden');
+            }
+
+            const drawBadge = document.getElementById('target-draw-badge');
+            const combinedPool = [...players, ...traits];
+            if (combinedPool.length > 0) {
+                const randomTarget = combinedPool[Math.floor(Math.random() * combinedPool.length)];
+                document.getElementById('drawn-target-name').innerText = randomTarget;
+                drawBadge.classList.remove('hidden');
+            } else {
+                drawBadge.classList.add('hidden');
             }
         }
 
         function nextQuestion() {
             if (currentFiltered.length === 0) return;
             currentIndex = Math.floor(Math.random() * currentFiltered.length);
-            updateCard();
+            animateCardUpdate();
         }
 
         function prevQuestion() {
             if (currentFiltered.length === 0) return;
             currentIndex = (currentIndex - 1 + currentFiltered.length) % currentFiltered.length;
-            updateCard();
+            animateCardUpdate();
         }
 
         function renderQuestionList() {
             const container = document.getElementById('question-list-container');
             container.innerHTML = '';
             if (questions.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">目前沒有任何題目</p>`;
+                container.innerHTML = `<p class="text-center text-stone-400 text-xs py-4">目前沒有任何題目</p>`;
                 return;
             }
             questions.forEach((q) => {
                 const item = document.createElement('div');
-                item.className = "bg-white/5 border border-white/10 p-3 rounded-2xl flex justify-between items-center gap-3 backdrop-blur-md shadow-sm";
+                item.className = "bg-white border border-stone-200/90 p-4 rounded-2xl flex justify-between items-center gap-3 shadow-sm";
                 item.innerHTML = `
                     <div class="flex-1">
-                        <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-bold">${catNames[q.cat] || '自訂'}</span>
-                        <p class="text-xs text-slate-200 mt-1 line-clamp-2">${q.text}</p>
+                        <span class="text-[10px] px-2.5 py-0.5 rounded-md bg-stone-200 text-stone-700 font-bold">${catNames[q.cat] || '自訂'}</span>
+                        <p class="text-xs text-stone-700 mt-1.5 leading-relaxed line-clamp-2">${q.text}</p>
                     </div>
                     <div class="flex gap-1.5 shrink-0">
-                        <button onclick="editQuestion(${q.id})" class="bg-white/10 hover:bg-white/20 text-slate-200 text-xs px-2.5 py-1.5 rounded-xl font-semibold">修改</button>
-                        <button onclick="deleteQuestion(${q.id})" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs px-2.5 py-1.5 rounded-xl font-semibold">刪除</button>
+                        <button onclick="openModal(${q.id})" class="bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs px-3 py-1.5 rounded-xl font-medium active:scale-95">修改</button>
+                        <button onclick="deleteQuestion(${q.id})" class="bg-stone-100 hover:bg-rose-100 text-stone-600 hover:text-rose-600 text-xs px-3 py-1.5 rounded-xl font-medium active:scale-95">刪除</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -492,18 +455,20 @@
         function openModal(id = null) {
             document.getElementById('crud-modal').classList.remove('hidden');
             if (id) {
-                document.getElementById('modal-title').innerText = '✨ 修改題目';
+                document.getElementById('modal-title').innerText = '修改題目與解答';
                 const q = questions.find(item => item.id === id);
                 if (q) {
                     document.getElementById('edit-id').value = q.id;
                     document.getElementById('modal-cat').value = q.cat;
                     document.getElementById('modal-text').value = q.text;
+                    document.getElementById('modal-answer').value = q.answer || '';
                 }
             } else {
-                document.getElementById('modal-title').innerText = '✨ 新增題目';
+                document.getElementById('modal-title').innerText = '新增題目與解答';
                 document.getElementById('edit-id').value = '';
-                document.getElementById('modal-cat').value = 'icebreaker';
+                document.getElementById('modal-cat').value = 'light';
                 document.getElementById('modal-text').value = '';
+                document.getElementById('modal-answer').value = '';
             }
         }
 
@@ -511,14 +476,11 @@
             document.getElementById('crud-modal').classList.add('hidden');
         }
 
-        function editQuestion(id) {
-            openModal(id);
-        }
-
         function saveQuestion() {
             const id = document.getElementById('edit-id').value;
             const cat = document.getElementById('modal-cat').value;
             const text = document.getElementById('modal-text').value.trim();
+            const answer = document.getElementById('modal-answer').value.trim();
 
             if (!text) {
                 alert('請輸入題目內容！');
@@ -530,13 +492,14 @@
                 if (index !== -1) {
                     questions[index].cat = cat;
                     questions[index].text = text;
+                    questions[index].answer = answer;
                 }
             } else {
                 const newId = questions.length > 0 ? Math.max(...questions.map(q => q.id)) + 1 : 1;
-                questions.unshift({ id: newId, cat: cat, text: text });
+                questions.unshift({ id: newId, cat: cat, text: text, answer: answer });
             }
 
-            localStorage.setItem('party_questions', JSON.stringify(questions));
+            localStorage.setItem('party_questions_v17', JSON.stringify(questions));
             closeModal();
             renderQuestionList();
             filterCategory(currentCategory);
@@ -545,14 +508,15 @@
         function deleteQuestion(id) {
             if (confirm('確定要刪除這道題目嗎？')) {
                 questions = questions.filter(item => item.id !== id);
-                localStorage.setItem('party_questions', JSON.stringify(questions));
+                localStorage.setItem('party_questions_v17', JSON.stringify(questions));
                 renderQuestionList();
                 filterCategory(currentCategory);
             }
         }
 
         renderPlayers();
-        updateCard();
+        renderTraits();
+        updateCardContent();
     </script>
 </body>
 </html>
