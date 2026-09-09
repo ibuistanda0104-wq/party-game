@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>深度交心派對：互動點名與特徵指認版</title>
+    <title>🔥 派對心動連線：深度交心 200 題</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between p-4 selection:bg-teal-500 selection:text-slate-950">
+<body class="bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-slate-100 min-h-screen flex flex-col justify-between p-4 selection:bg-pink-500 selection:text-white">
 
     <!-- Header -->
-    <header class="text-center py-2">
-        <h1 class="text-xl font-bold tracking-wider text-teal-400">🔥 互動小卡</h1>
-        <div class="flex justify-center gap-2 mt-2">
-            <button onclick="switchTab('game')" id="tab-game" class="px-3 py-1 text-xs font-semibold rounded-full bg-teal-500 text-slate-950 transition">抽題遊戲</button>
-            <button onclick="switchTab('manage')" id="tab-manage" class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-400 border border-slate-700 transition">題庫管理</button>
+    <header class="text-center py-3">
+        <h1 class="text-2xl font-black tracking-wider bg-gradient-to-r from-pink-400 via-purple-400 to-amber-300 bg-clip-text text-transparent drop-shadow-md">
+            ✨ 派對心動連線 200 題 ✨
+        </h1>
+        <div class="flex justify-center gap-2 mt-3">
+            <button onclick="switchTab('game')" id="tab-game" class="px-4 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 transition transform active:scale-95">🎲 抽題遊戲</button>
+            <button onclick="switchTab('manage')" id="tab-manage" class="px-4 py-1.5 text-xs font-bold rounded-full bg-white/10 text-slate-300 border border-white/10 transition transform active:scale-95">⚙️ 題庫管理</button>
         </div>
     </header>
 
@@ -21,62 +23,65 @@
     <main id="view-game" class="flex-1 flex flex-col justify-center items-center max-w-md mx-auto w-full my-2">
         
         <!-- 玩家名單設定區 -->
-        <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-3 w-full mb-3 shadow-md">
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 w-full mb-3 shadow-xl">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-semibold text-teal-300">👥 參與玩家設定</span>
-                <span id="player-count" class="text-[10px] text-slate-400">已加入 0 人</span>
+                <span class="text-xs font-bold text-pink-300 flex items-center gap-1">🦄 參與玩家名單</span>
+                <span id="player-count" class="text-[10px] text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full">已加入 0 人</span>
             </div>
             <div class="flex gap-2 mb-2">
-                <input type="text" id="player-input" placeholder="輸入玩家名字（例：小明）" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500" onkeypress="if(event.key==='Enter') addPlayer()">
-                <button onclick="addPlayer()" class="bg-teal-500 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95">新增</button>
+                <input type="text" id="player-input" placeholder="輸入朋友名字（例：小美）" class="flex-1 bg-slate-900/80 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-pink-500 transition shadow-inner" onkeypress="if(event.key==='Enter') addPlayer()">
+                <button onclick="addPlayer()" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-purple-500/20 transition active:scale-95">新增</button>
             </div>
-            <div id="player-chips" class="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
+            <div id="player-chips" class="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto pr-1">
                 <!-- 動態玩家標籤 -->
             </div>
         </div>
 
         <!-- 類別與抽中玩家標籤 -->
-        <div class="flex justify-between items-center w-full mb-2 px-1">
-            <div id="category-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+        <div class="flex justify-between items-center w-full mb-2.5 px-1">
+            <div id="category-badge" class="px-3.5 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-pink-300 border border-pink-500/30 shadow-sm">
                 類別：輕鬆破冰
             </div>
-            <div id="target-player-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 hidden">
+            <div id="target-player-badge" class="px-3.5 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse hidden">
                 🎯 點名：<span id="drawn-player-name">--</span>
             </div>
         </div>
         
-        <!-- 題目卡片 -->
-        <div id="question-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl w-full text-center min-h-[200px] flex flex-col justify-center items-center transition-all duration-300">
-            <span class="text-slate-500 text-xs mb-2">#<span id="q-index">1</span> / <span id="q-total">200</span></span>
-            <p id="question-text" class="text-lg font-medium leading-relaxed">點擊下方按鈕，開始隨機抽題並點名大家吧！</p>
+        <!-- 題目卡片 (玻璃擬態特效) -->
+        <div id="question-card" class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-2xl w-full text-center min-h-[210px] flex flex-col justify-center items-center transition-all duration-300 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <span class="text-purple-300/80 text-xs font-semibold mb-2 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5">#<span id="q-index">1</span> / <span id="q-total">200</span></span>
+            <p id="question-text" class="text-lg font-bold leading-relaxed text-white drop-shadow">點擊下方按鈕，開始隨機抽題並炒熱氣氛吧！</p>
         </div>
 
         <!-- Controls -->
         <div class="flex gap-3 w-full mt-4">
-            <button onclick="prevQuestion()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-3 rounded-xl transition active:scale-95 text-sm">
-                上一題
+            <button onclick="prevQuestion()" class="flex-1 bg-white/10 hover:bg-white/20 text-slate-200 font-bold py-3 rounded-2xl transition border border-white/10 active:scale-95 text-sm shadow-md">
+                ⬅️ 上一題
             </button>
-            <button onclick="nextQuestion()" class="flex-[2] bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-teal-500/20 active:scale-95 text-base">
-                隨機抽題 🎲
+            <button onclick="nextQuestion()" class="flex-[2] bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:opacity-90 text-white font-black py-3 rounded-2xl transition shadow-xl shadow-pink-500/30 active:scale-95 text-base tracking-wider">
+                ✨ 隨機抽題 🎲
             </button>
         </div>
 
         <!-- Filter Categories -->
         <div class="flex flex-wrap gap-2 justify-center mt-4 w-full">
-            <button onclick="filterCategory('all')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-teal-500 text-slate-950 font-semibold transition" data-cat="all">全部題庫</button>
-            <button onclick="filterCategory('icebreaker')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="icebreaker">輕鬆破冰</button>
-            <button onclick="filterCategory('everyone')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="everyone">問大家</button>
-            <button onclick="filterCategory('trait')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="trait">特徵指認</button>
-            <button onclick="filterCategory('deep')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="deep">靈魂深聊</button>
-            <button onclick="filterCategory('funny')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="funny">瘋狂假設</button>
+            <button onclick="filterCategory('all')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20 transition" data-cat="all">全部題庫</button>
+            <button onclick="filterCategory('icebreaker')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="icebreaker">🎈 輕鬆破冰</button>
+            <button onclick="filterCategory('everyone')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="everyone">🗣️ 問大家</button>
+            <button onclick="filterCategory('trait')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="trait">🕵️ 特徵指認</button>
+            <button onclick="filterCategory('deep')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="deep">🌊 靈魂深聊</button>
+            <button onclick="filterCategory('funny')" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition" data-cat="funny">🤪 瘋狂假設</button>
         </div>
     </main>
 
     <!-- Management View (CRUD) -->
     <main id="view-manage" class="flex-1 flex flex-col max-w-md mx-auto w-full my-2 hidden">
         <div class="flex justify-between items-center mb-3">
-            <span class="text-xs text-slate-400">題庫管理（支援新增、修改、刪除）</span>
-            <button onclick="openModal()" class="bg-teal-500 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition active:scale-95">＋ 新增題目</button>
+            <span class="text-xs font-semibold text-purple-300">⚙️ 題庫管理（新增、修改、刪除）</span>
+            <button onclick="openModal()" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg shadow-pink-500/20 transition active:scale-95">＋ 新增題目</button>
         </div>
         <div class="flex-1 overflow-y-auto max-h-[60vh] space-y-2 pr-1" id="question-list-container">
             <!-- 動態生成題目列表 -->
@@ -84,34 +89,34 @@
     </main>
 
     <!-- Modal for Add/Edit -->
-    <div id="crud-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 hidden z-50">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-sm shadow-2xl">
-            <h3 id="modal-title" class="text-base font-bold text-teal-400 mb-3">新增題目</h3>
+    <div id="crud-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex justify-center items-center p-4 hidden z-50">
+        <div class="bg-gradient-to-b from-slate-900 to-purple-950 border border-purple-500/30 rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 id="modal-title" class="text-base font-black text-pink-400 mb-3">✨ 新增題目</h3>
             <input type="hidden" id="edit-id">
-            <label class="block text-xs text-slate-400 mb-1">選擇分類</label>
-            <select id="modal-cat" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 mb-3 focus:outline-none focus:border-teal-500">
-                <option value="icebreaker">輕鬆破冰</option>
-                <option value="everyone">問大家</option>
-                <option value="trait">特徵指認</option>
-                <option value="deep">靈魂深聊</option>
-                <option value="funny">瘋狂假設</option>
+            <label class="block text-xs font-bold text-purple-300 mb-1">選擇分類</label>
+            <select id="modal-cat" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl p-2.5 text-sm text-slate-200 mb-3 focus:outline-none focus:border-pink-500">
+                <option value="icebreaker">🎈 輕鬆破冰</option>
+                <option value="everyone">🗣️ 問大家</option>
+                <option value="trait">🕵️ 特徵指認</option>
+                <option value="deep">🌊 靈魂深聊</option>
+                <option value="funny">🤪 瘋狂假設</option>
             </select>
-            <label class="block text-xs text-slate-400 mb-1">題目內容</label>
-            <textarea id="modal-text" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 mb-4 focus:outline-none focus:border-teal-500" placeholder="請輸入問題內容..."></textarea>
+            <label class="block text-xs font-bold text-purple-300 mb-1">題目內容</label>
+            <textarea id="modal-text" rows="3" class="w-full bg-slate-950 border border-purple-500/30 rounded-xl p-2.5 text-sm text-slate-200 mb-4 focus:outline-none focus:border-pink-500" placeholder="請輸入問題內容..."></textarea>
             <div class="flex gap-2">
-                <button onclick="closeModal()" class="flex-1 bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold">取消</button>
-                <button onclick="saveQuestion()" class="flex-1 bg-teal-500 text-slate-950 py-2.5 rounded-xl text-sm font-bold">儲存</button>
+                <button onclick="closeModal()" class="flex-1 bg-white/10 text-slate-300 py-2.5 rounded-xl text-sm font-bold hover:bg-white/20 transition">取消</button>
+                <button onclick="saveQuestion()" class="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-pink-500/20">儲存</button>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-2 text-slate-500 text-xs">
-        手機隨身網頁版 · 自動儲存名單與題庫
+    <footer class="text-center py-2 text-slate-500 text-xs font-medium">
+        ✨ 派對隨身網頁版 · 自動儲存名單與題庫
     </footer>
 
     <script>
-        // 內建完整的 200 題題庫（包含輕鬆破冰、問大家、特徵指認、靈魂深聊、瘋狂假設）
+        // 內建完整的 200 題題庫
         const defaultQuestions = [
             // 輕鬆破冰 (40題)
             { id: 1, cat: 'icebreaker', text: '如果現在立刻可以去世界上任何一個地方旅行，你會去哪裡？' },
@@ -188,7 +193,7 @@
             { id: 70, cat: 'everyone', text: '【問大家】請大家互相稱讚對方身上的一個優點！' },
             { id: 71, cat: 'everyone', text: '【問大家】大家覺得誰如果去學一門新樂器會上手最快？' },
             { id: 72, cat: 'everyone', text: '【問大家】請大家分享自己買過最後悔的一個衝動購物是什麼！' },
-            { id: 73, cat: 'everyone', text: '【問大家】大家覺得誰最有可能成為下一個環保達人或手作達人？' },
+            { id: 73, cat: 'everyone', text: '【問大家】大家覺得誰最馬上有可能成為下一個環保達人或手作達人？' },
             { id: 74, cat: 'everyone', text: '【問大家】請大家輪流分享自己手機裡最近一張截圖是什麼！' },
             { id: 75, cat: 'everyone', text: '【問大家】大家覺得誰如果去露營會準備最多厲害的裝備？' },
             { id: 76, cat: 'everyone', text: '【問大家】請大家分享自己最喜歡的一首療癒系歌曲！' },
@@ -212,7 +217,7 @@
             { id: 92, cat: 'trait', text: '【特徵指認】請大家指認：現場誰包包裡永遠備有最多實用小物（如濕紙巾、薄荷涼糖、充電線）？' },
             { id: 93, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最喜歡嘗試各種新科技、新工具或自動化小物？' },
             { id: 94, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果去看電影或聽演唱會，最容易感動到哭出來？' },
-            { id: 95, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對流行音樂或歌手（如周深等唱將）最內行？' },
+            { id: 95, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對流行音樂或歌手最內行？' },
             { id: 96, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最懂得享受獨處時光，一個人也能把日子過得很精彩？' },
             { id: 97, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時挑選東西最理性、會做足功課才下手？' },
             { id: 98, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果養寵物或看到動物，會直接融化變成大寶寶？' },
@@ -324,7 +329,6 @@
             { id: 200, cat: 'funny', text: '如果必須挑選一個神話怪獸當坐騎，你選獨角獸還是噴火龍？' }
         ];
 
-        // 載入 localStorage 題庫與玩家名單
         let questions = JSON.parse(localStorage.getItem('party_questions'));
         if (!questions || questions.length === 0) {
             questions = defaultQuestions;
@@ -332,36 +336,34 @@
         }
 
         let players = JSON.parse(localStorage.getItem('party_players')) || [];
-
         let currentCategory = 'all';
         let currentFiltered = [...questions];
         let currentIndex = 0;
 
         const catNames = {
-            'icebreaker': '輕鬆破冰',
-            'everyone': '問大家',
-            'trait': '特徵指認',
-            'deep': '靈魂深聊',
-            'funny': '瘋狂假設'
+            'icebreaker': '🎈 輕鬆破冰',
+            'everyone': '🗣️ 問大家',
+            'trait': '🕵️ 特徵指認',
+            'deep': '🌊 靈魂深聊',
+            'funny': '🤪 瘋狂假設'
         };
 
-        // 玩家管理相關函數
         function renderPlayers() {
             const container = document.getElementById('player-chips');
             container.innerHTML = '';
             document.getElementById('player-count').innerText = `已加入 ${players.length} 人`;
             
             if (players.length === 0) {
-                container.innerHTML = `<span class="text-[11px] text-slate-500 italic">尚未新增玩家，抽題時將不會隨機點名。</span>`;
+                container.innerHTML = `<span class="text-[11px] text-slate-400 italic">尚未新增玩家，抽題時將不會隨機點名。</span>`;
                 return;
             }
 
             players.forEach((name, index) => {
                 const chip = document.createElement('div');
-                chip.className = "bg-slate-900 border border-teal-500/30 text-teal-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm";
+                chip.className = "bg-slate-900/90 border border-pink-500/30 text-pink-300 text-xs px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm transform hover:scale-105 transition";
                 chip.innerHTML = `
-                    <span>${name}</span>
-                    <button onclick="removePlayer(${index})" class="text-slate-400 hover:text-rose-400 font-bold text-[10px]">×</button>
+                    <span>✨ ${name}</span>
+                    <button onclick="removePlayer(${index})" class="text-slate-400 hover:text-pink-400 font-bold text-xs ml-0.5">×</button>
                 `;
                 container.appendChild(chip);
             });
@@ -386,7 +388,6 @@
             renderPlayers();
         }
 
-        // 切換分頁
         function switchTab(tab) {
             const viewGame = document.getElementById('view-game');
             const viewManage = document.getElementById('view-manage');
@@ -396,19 +397,18 @@
             if (tab === 'game') {
                 viewGame.classList.remove('hidden');
                 viewManage.classList.add('hidden');
-                tabGame.className = "px-3 py-1 text-xs font-semibold rounded-full bg-teal-500 text-slate-950 transition";
-                tabManage.className = "px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-400 border border-slate-700 transition";
+                tabGame.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 transition transform active:scale-95";
+                tabManage.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-white/10 text-slate-300 border border-white/10 transition transform active:scale-95";
                 filterCategory(currentCategory);
             } else {
                 viewGame.classList.add('hidden');
                 viewManage.classList.remove('hidden');
-                tabManage.className = "px-3 py-1 text-xs font-semibold rounded-full bg-teal-500 text-slate-950 transition";
-                tabGame.className = "px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-400 border border-slate-700 transition";
+                tabManage.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 transition transform active:scale-95";
+                tabGame.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-white/10 text-slate-300 border border-white/10 transition transform active:scale-95";
                 renderQuestionList();
             }
         }
 
-        // 篩選分類
         function filterCategory(cat) {
             currentCategory = cat;
             if (cat === 'all') {
@@ -421,9 +421,9 @@
 
             document.querySelectorAll('.cat-filter-btn').forEach(btn => {
                 if (btn.getAttribute('data-cat') === cat) {
-                    btn.className = "cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-teal-500 text-slate-950 font-semibold transition";
+                    btn.className = "cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20 transition";
                 } else {
-                    btn.className = "cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition";
+                    btn.className = "cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 text-slate-300 border border-white/10 transition";
                 }
             });
         }
@@ -443,7 +443,6 @@
             document.getElementById('q-index').innerText = currentIndex + 1;
             document.getElementById('q-total').innerText = currentFiltered.length;
 
-            // 隨機抽題時，若有設定玩家且題目不是「問大家」，隨機點名一位玩家
             const playerBadge = document.getElementById('target-player-badge');
             if (players.length > 0 && q.cat !== 'everyone') {
                 const randomPlayer = players[Math.floor(Math.random() * players.length)];
@@ -466,25 +465,24 @@
             updateCard();
         }
 
-        // 管理清單 (CRUD)
         function renderQuestionList() {
             const container = document.getElementById('question-list-container');
             container.innerHTML = '';
             if (questions.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-500 text-xs py-4">目前沒有任何題目</p>`;
+                container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">目前沒有任何題目</p>`;
                 return;
             }
             questions.forEach((q) => {
                 const item = document.createElement('div');
-                item.className = "bg-slate-800 border border-slate-700 p-3 rounded-xl flex justify-between items-center gap-3";
+                item.className = "bg-white/5 border border-white/10 p-3 rounded-2xl flex justify-between items-center gap-3 backdrop-blur-md shadow-sm";
                 item.innerHTML = `
                     <div class="flex-1">
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-semibold">${catNames[q.cat] || '自訂'}</span>
+                        <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-bold">${catNames[q.cat] || '自訂'}</span>
                         <p class="text-xs text-slate-200 mt-1 line-clamp-2">${q.text}</p>
                     </div>
                     <div class="flex gap-1.5 shrink-0">
-                        <button onclick="editQuestion(${q.id})" class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg">修改</button>
-                        <button onclick="deleteQuestion(${q.id})" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs px-2.5 py-1.5 rounded-lg">刪除</button>
+                        <button onclick="editQuestion(${q.id})" class="bg-white/10 hover:bg-white/20 text-slate-200 text-xs px-2.5 py-1.5 rounded-xl font-semibold">修改</button>
+                        <button onclick="deleteQuestion(${q.id})" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs px-2.5 py-1.5 rounded-xl font-semibold">刪除</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -494,7 +492,7 @@
         function openModal(id = null) {
             document.getElementById('crud-modal').classList.remove('hidden');
             if (id) {
-                document.getElementById('modal-title').innerText = '修改題目';
+                document.getElementById('modal-title').innerText = '✨ 修改題目';
                 const q = questions.find(item => item.id === id);
                 if (q) {
                     document.getElementById('edit-id').value = q.id;
@@ -502,7 +500,7 @@
                     document.getElementById('modal-text').value = q.text;
                 }
             } else {
-                document.getElementById('modal-title').innerText = '新增題目';
+                document.getElementById('modal-title').innerText = '✨ 新增題目';
                 document.getElementById('edit-id').value = '';
                 document.getElementById('modal-cat').value = 'icebreaker';
                 document.getElementById('modal-text').value = '';
@@ -547,14 +545,12 @@
         function deleteQuestion(id) {
             if (confirm('確定要刪除這道題目嗎？')) {
                 questions = questions.filter(item => item.id !== id);
-                localStorage.setItem('party_questions', JSON.g(questions));
                 localStorage.setItem('party_questions', JSON.stringify(questions));
                 renderQuestionList();
                 filterCategory(currentCategory);
             }
         }
 
-        // 初始化
         renderPlayers();
         updateCard();
     </script>
