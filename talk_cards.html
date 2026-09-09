@@ -3,33 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>深度交心派對：200題真心話大冒險</title>
+    <title>深度交心派對：互動點名與特徵指認版</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between p-4 selection:bg-teal-500 selection:text-slate-950">
 
     <!-- Header -->
-    <header class="text-center py-3">
-        <h1 class="text-xl font-bold tracking-wider text-teal-400">🔥 深度交心派對 200 題</h1>
+    <header class="text-center py-2">
+        <h1 class="text-xl font-bold tracking-wider text-teal-400">🔥 派對心動連線 200 題</h1>
         <div class="flex justify-center gap-2 mt-2">
             <button onclick="switchTab('game')" id="tab-game" class="px-3 py-1 text-xs font-semibold rounded-full bg-teal-500 text-slate-950 transition">抽題遊戲</button>
-            <button onclick="switchTab('manage')" id="tab-manage" class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-400 border border-slate-700 transition">題庫管理 (CRUD)</button>
+            <button onclick="switchTab('manage')" id="tab-manage" class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-400 border border-slate-700 transition">題庫管理</button>
         </div>
     </header>
 
     <!-- Main Game View -->
     <main id="view-game" class="flex-1 flex flex-col justify-center items-center max-w-md mx-auto w-full my-2">
-        <div id="category-badge" class="mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
-            類別：輕鬆破冰
+        
+        <!-- 玩家名單設定區 -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-3 w-full mb-3 shadow-md">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-semibold text-teal-300">👥 參與玩家設定</span>
+                <span id="player-count" class="text-[10px] text-slate-400">已加入 0 人</span>
+            </div>
+            <div class="flex gap-2 mb-2">
+                <input type="text" id="player-input" placeholder="輸入玩家名字（例：小明）" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500" onkeypress="if(event.key==='Enter') addPlayer()">
+                <button onclick="addPlayer()" class="bg-teal-500 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95">新增</button>
+            </div>
+            <div id="player-chips" class="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
+                <!-- 動態玩家標籤 -->
+            </div>
+        </div>
+
+        <!-- 類別與抽中玩家標籤 -->
+        <div class="flex justify-between items-center w-full mb-2 px-1">
+            <div id="category-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                類別：輕鬆破冰
+            </div>
+            <div id="target-player-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 hidden">
+                🎯 點名：<span id="drawn-player-name">--</span>
+            </div>
         </div>
         
-        <div id="question-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl w-full text-center min-h-[220px] flex flex-col justify-center items-center transition-all duration-300">
+        <!-- 題目卡片 -->
+        <div id="question-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl w-full text-center min-h-[200px] flex flex-col justify-center items-center transition-all duration-300">
             <span class="text-slate-500 text-xs mb-2">#<span id="q-index">1</span> / <span id="q-total">200</span></span>
-            <p id="question-text" class="text-lg font-medium leading-relaxed">點擊下方按鈕，開始抽取你們的第一個話題吧！</p>
+            <p id="question-text" class="text-lg font-medium leading-relaxed">點擊下方按鈕，開始隨機抽題並點名大家吧！</p>
         </div>
 
         <!-- Controls -->
-        <div class="flex gap-3 w-full mt-5">
+        <div class="flex gap-3 w-full mt-4">
             <button onclick="prevQuestion()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-3 rounded-xl transition active:scale-95 text-sm">
                 上一題
             </button>
@@ -39,23 +62,24 @@
         </div>
 
         <!-- Filter Categories -->
-        <div class="flex flex-wrap gap-2 justify-center mt-5 w-full">
+        <div class="flex flex-wrap gap-2 justify-center mt-4 w-full">
             <button onclick="filterCategory('all')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-teal-500 text-slate-950 font-semibold transition" data-cat="all">全部題庫</button>
             <button onclick="filterCategory('icebreaker')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="icebreaker">輕鬆破冰</button>
+            <button onclick="filterCategory('everyone')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="everyone">問大家</button>
+            <button onclick="filterCategory('trait')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="trait">特徵指認</button>
             <button onclick="filterCategory('deep')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="deep">靈魂深聊</button>
             <button onclick="filterCategory('funny')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="funny">瘋狂假設</button>
-            <button onclick="filterCategory('life')" class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 border border-slate-700 transition" data-cat="life">生活觀點</button>
         </div>
     </main>
 
     <!-- Management View (CRUD) -->
     <main id="view-manage" class="flex-1 flex flex-col max-w-md mx-auto w-full my-2 hidden">
         <div class="flex justify-between items-center mb-3">
-            <span class="text-xs text-slate-400">管理現有題庫（支援新增、修改、刪除）</span>
+            <span class="text-xs text-slate-400">題庫管理（支援新增、修改、刪除）</span>
             <button onclick="openModal()" class="bg-teal-500 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition active:scale-95">＋ 新增題目</button>
         </div>
         <div class="flex-1 overflow-y-auto max-h-[60vh] space-y-2 pr-1" id="question-list-container">
-            <!-- 題目列表動態生成 -->
+            <!-- 動態生成題目列表 -->
         </div>
     </main>
 
@@ -67,9 +91,10 @@
             <label class="block text-xs text-slate-400 mb-1">選擇分類</label>
             <select id="modal-cat" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 mb-3 focus:outline-none focus:border-teal-500">
                 <option value="icebreaker">輕鬆破冰</option>
+                <option value="everyone">問大家</option>
+                <option value="trait">特徵指認</option>
                 <option value="deep">靈魂深聊</option>
                 <option value="funny">瘋狂假設</option>
-                <option value="life">生活觀點</option>
             </select>
             <label class="block text-xs text-slate-400 mb-1">題目內容</label>
             <textarea id="modal-text" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 mb-4 focus:outline-none focus:border-teal-500" placeholder="請輸入問題內容..."></textarea>
@@ -82,13 +107,13 @@
 
     <!-- Footer -->
     <footer class="text-center py-2 text-slate-500 text-xs">
-        手機隨身網頁版 · 自動儲存修改
+        手機隨身網頁版 · 自動儲存名單與題庫
     </footer>
 
     <script>
-        // 內建完整的 200 題題庫
+        // 內建完整的 200 題題庫（包含輕鬆破冰、問大家、特徵指認、靈魂深聊、瘋狂假設）
         const defaultQuestions = [
-            // 輕鬆破冰 (50題)
+            // 輕鬆破冰 (40題)
             { id: 1, cat: 'icebreaker', text: '如果現在立刻可以去世界上任何一個地方旅行，你會去哪裡？' },
             { id: 2, cat: 'icebreaker', text: '你最近一次真心覺得大笑是什麼時候？發生了什麼事？' },
             { id: 3, cat: 'icebreaker', text: '如果你的冰箱永遠只有一種食物或飲料，你希望它是什麼？' },
@@ -129,180 +154,184 @@
             { id: 38, cat: 'icebreaker', text: '你最喜歡哪一種香味？' },
             { id: 39, cat: 'icebreaker', text: '如果可以跟卡通人物交換一天靈魂，你想當誰？' },
             { id: 40, cat: 'icebreaker', text: '你上一次去KTV必點的拿手歌曲是什麼？' },
-            { id: 41, cat: 'icebreaker', text: '你覺得自己是個路癡嗎？方向感好不好？' },
-            { id: 42, cat: 'icebreaker', text: '你最喜歡的冰淇淋口味是什麼？' },
-            { id: 43, cat: 'icebreaker', text: '如果房間必須漆成單一顏色，你會選什麼色？' },
-            { id: 44, cat: 'icebreaker', text: '你覺得自己擅長手作或繪畫嗎？' },
-            { id: 45, cat: 'icebreaker', text: '你心目中完美的一天應該怎麼過？' },
-            { id: 46, cat: 'icebreaker', text: '你最常觀看哪一種類型的 YouTube 影片？' },
-            { id: 47, cat: 'icebreaker', text: '如果可以重新命名自己，你想叫什麼名字？' },
-            { id: 48, cat: 'icebreaker', text: '你覺得自己笑起來最好看的地方在哪裡？' },
-            { id: 49, cat: 'icebreaker', text: '你最喜歡哪一種運動或健身方式？' },
-            { id: 50, cat: 'icebreaker', text: '如果要用一種動物來形容自己，你覺得自己像什麼？' },
 
-            // 靈魂深聊 (50題)
-            { id: 51, cat: 'deep', text: '你覺得自己長大後改變最多的一個特質是什麼？' },
-            { id: 52, cat: 'deep', text: '如果能回到過去給10年前的自己一句話，你會說什麼？' },
-            { id: 53, cat: 'deep', text: '你心目中理想的自在生活狀態是什麼樣子？' },
-            { id: 54, cat: 'deep', text: '做過最勇敢、最不後悔的決定是什麼？' },
-            { id: 55, cat: 'deep', text: '你覺得人生中最重要的一項核心價值觀是什麼？' },
-            { id: 56, cat: 'deep', text: '當你面臨巨大壓力或挫折時，通常怎麼調適自己？' },
-            { id: 57, cat: 'deep', text: '你覺得真正的「成熟」代表著什麼？' },
-            { id: 58, cat: 'deep', text: '你人生中影響你最深的人是誰？為什麼？' },
-            { id: 59, cat: 'deep', text: '如果可以向宇宙許一個願望，且一定會實現，你會許什麼？' },
-            { id: 60, cat: 'deep', text: '你覺得自己最容易被什麼樣的人事物感動？' },
-            { id: 61, cat: 'deep', text: '回顧過去一年，你覺得自己最大的成長是什麼？' },
-            { id: 62, cat: 'deep', text: '你心中最大的恐懼或擔憂是什麼？' },
-            { id: 63, cat: 'deep', text: '你覺得友情或愛情中最珍貴的特質是什麼？' },
-            { id: 64, cat: 'deep', text: '如果五年後的自己來看你，你希望他/她對現在的你說什麼？' },
-            { id: 65, cat: 'deep', text: '你覺得自己是一個容易原諒別人還是記仇的人？' },
-            { id: 66, cat: 'deep', text: '你認為金錢與快樂之間最大的平衡點是什麼？' },
-            { id: 67, cat: 'deep', text: '你做過最瘋狂、最衝動的事情是什麼？' },
-            { id: 68, cat: 'deep', text: '你覺得自己內心深處是一個樂觀還是悲觀的人？' },
-            { id: 69, cat: 'deep', text: '如果必須放棄一項社群軟體或通訊軟體，你捨得哪一個？' },
-            { id: 70, cat: 'deep', text: '你覺得自己目前的人生清單（Bucket List）最想完成的事是什麼？' },
-            { id: 71, cat: 'deep', text: '你在人際關係中最不能接受的雷點是什麼？' },
-            { id: 72, cat: 'deep', text: '你覺得自己是一個擅長表達情緒，還是習慣壓抑的人？' },
-            { id: 73, cat: 'deep', text: '如果能重新選擇一次大學科系或職業跑道，你會做不同選擇嗎？' },
-            { id: 74, cat: 'deep', text: '你覺得什麼樣的時刻讓妳覺得自己最具有價值？' },
-            { id: 75, cat: 'deep', text: '你最希望身邊的朋友怎麼形容你？' },
-            { id: 76, cat: 'deep', text: '你覺得自己對成功的定義是什麼？' },
-            { id: 77, cat: 'deep', text: '你有沒有什麼一直想做卻遲遲不敢跨出去的事？' },
-            { id: 78, cat: 'deep', text: '你覺得人與人之間最難建立的信任是什麼？' },
-            { id: 79, cat: 'deep', text: '你心目中完美的週末陪伴對象與情境是什麼？' },
-            { id: 80, cat: 'deep', text: '你覺得自己最需要學會的一門人生功課是什麼？' },
-            { id: 81, cat: 'deep', text: '如果明天世界就要停止運轉，你今天最想見的人是誰？' },
-            { id: 82, cat: 'deep', text: '你覺得自己是一個浪漫主義者還是現實主義者？' },
-            { id: 83, cat: 'deep', text: '你有沒有經歷過某個低潮，卻反而讓你變得更強大？' },
-            { id: 84, cat: 'deep', text: '你覺得在團隊合作中，自己通常扮演什麼角色？' },
-            { id: 85, cat: 'deep', text: '你心目中理想的退休生活是長怎樣的？' },
-            { id: 86, cat: 'deep', text: '你覺得自己是一個懂得享受當下的人嗎？' },
-            { id: 87, cat: 'deep', text: '你面對離別或失去時，通常會用什麼方式調適？' },
-            { id: 88, cat: 'deep', text: '你覺得保持內心平靜最有效的方法是什麼？' },
-            { id: 89, cat: 'deep', text: '你對「命運」這兩個字有什麼看法？' },
-            { id: 90, cat: 'deep', text: '你覺得自己哪一個特質最讓你感到驕傲？' },
-            { id: 91, cat: 'deep', text: '你有沒有什麼心結是到現在還沒有完全解開的？' },
-            { id: 92, cat: 'deep', text: '你覺得學會對不合理的事情說「不」有多難？' },
-            { id: 93, cat: 'deep', text: '你心目中無條件支持你的家人或朋友是誰？' },
-            { id: 94, cat: 'deep', text: '你覺得人長大後要維持真誠的友誼難在哪裡？' },
-            { id: 95, cat: 'deep', text: '如果能擁有無限的資源，你想為這個世界改變什麼？' },
-            { id: 96, cat: 'deep', text: '你覺得自己最大的優點同時也是最大的缺點是什麼？' },
-            { id: 97, cat: 'deep', text: '你上一次真心流淚是因為感動還是難過？' },
-            { id: 98, cat: 'deep', text: '你覺得自己是一個有同理心的人嗎？' },
-            { id: 99, cat: 'deep', text: '如果可以用一首歌曲總結你目前的人生階段，會是什麼歌？' },
-            { id: 100, cat: 'deep', text: '你覺得人活著最核心的意義是什麼？' },
+            // 問大家 (40題)
+            { id: 41, cat: 'everyone', text: '【問大家】大家覺得在場誰最有當CEO或領導者的潛力？為什麼？' },
+            { id: 42, cat: 'everyone', text: '【問大家】大家心目中對彼此的第一印象跟現在差最多的是誰？' },
+            { id: 43, cat: 'everyone', text: '【問大家】請大家輪流分享自己今年目前為止做過最棒的一個決定是什麼！' },
+            { id: 44, cat: 'everyone', text: '【問大家】大家覺得如果去荒島求生，誰會是最先放棄或最罩的人？' },
+            { id: 45, cat: 'everyone', text: '【問大家】請大家各自用一個動物來形容坐在你右邊的人！' },
+            { id: 46, cat: 'everyone', text: '【問大家】大家覺得在場誰手機裡的照片最滿、最捨不得刪？' },
+            { id: 47, cat: 'everyone', text: '【問大家】大家小時候有沒有做過什麼現在想起來覺得超尷尬的蠢事？' },
+            { id: 48, cat: 'everyone', text: '【問大家】請大家分享一個自己最近被療癒到的小瞬間！' },
+            { id: 49, cat: 'everyone', text: '【問大家】大家覺得在場誰如果中樂透頭獎，會藏得最好或馬上揮霍完？' },
+            { id: 50, cat: 'everyone', text: '【問大家】請大家說出自己心中最不能接受的食物或配料是什麼！' },
+            { id: 51, cat: 'everyone', text: '【問大家】大家覺得誰是大家眼中的美食雷達，最懂哪裡有好吃的？' },
+            { id: 52, cat: 'everyone', text: '【問大家】請大家互相猜猜看對方平常紓解壓力最常做什麼事！' },
+            { id: 53, cat: 'everyone', text: '【問大家】大家覺得誰出門旅行一定會把行李箱收納得最整齊？' },
+            { id: 54, cat: 'everyone', text: '【問大家】請大家分享一件只有少數人知道的自己小祕密！' },
+            { id: 55, cat: 'everyone', text: '【問大家】大家覺得在場誰最有可能深夜突然發起一場夜景或宵夜局？' },
+            { id: 56, cat: 'everyone', text: '【問大家】請大家輪流說出對在場所有人最感謝的一件事！' },
+            { id: 57, cat: 'everyone', text: '【問大家】大家覺得誰平時看起來最淡定，其實內心小劇場最多？' },
+            { id: 58, cat: 'everyone', text: '【問大家】請大家投票選出誰是大家的開心果！' },
+            { id: 59, cat: 'everyone', text: '【問大家】大家覺得誰如果去拍實境節目會最吸睛、最有綜藝效果？' },
+            { id: 60, cat: 'everyone', text: '【問大家】請大家分享一個自己最近學到或看到的冷知識！' },
+            { id: 61, cat: 'everyone', text: '【問大家】大家覺得誰最擅長照顧別人、像個溫暖的小太陽？' },
+            { id: 62, cat: 'everyone', text: '【問大家】請大家各自說出一句最能代表自己人生哲學的話！' },
+            { id: 63, cat: 'everyone', text: '【問大家】大家覺得誰如果去創業，最有可能開一間風格獨特的咖啡廳？' },
+            { id: 64, cat: 'everyone', text: '【問大家】請大家分享自己目前最期待的一趟旅行或計畫是什麼！' },
+            { id: 65, cat: 'everyone', text: '【問大家】大家覺得誰平時最注重養生、健康管理做得最好？' },
+            { id: 66, cat: 'everyone', text: '【問大家】請大家說出自己小時候最迷戀的一部卡通或偶像劇！' },
+            { id: 67, cat: 'everyone', text: '【問大家】大家覺得誰如果去參加益智問答節目會拿最高獎金？' },
+            { id: 68, cat: 'everyone', text: '【問大家】請大家分享一個自己最喜歡的放空儀式！' },
+            { id: 69, cat: 'everyone', text: '【問大家】大家覺得誰最常在網路上被各種可愛的手作或寵物影片燒到？' },
+            { id: 70, cat: 'everyone', text: '【問大家】請大家互相稱讚對方身上的一個優點！' },
+            { id: 71, cat: 'everyone', text: '【問大家】大家覺得誰如果去學一門新樂器會上手最快？' },
+            { id: 72, cat: 'everyone', text: '【問大家】請大家分享自己買過最後悔的一個衝動購物是什麼！' },
+            { id: 73, cat: 'everyone', text: '【問大家】大家覺得誰最有可能成為下一個環保達人或手作達人？' },
+            { id: 74, cat: 'everyone', text: '【問大家】請大家輪流分享自己手機裡最近一張截圖是什麼！' },
+            { id: 75, cat: 'everyone', text: '【問大家】大家覺得誰如果去露營會準備最多厲害的裝備？' },
+            { id: 76, cat: 'everyone', text: '【問大家】請大家分享自己最喜歡的一首療癒系歌曲！' },
+            { id: 77, cat: 'everyone', text: '【問大家】大家覺得誰最擅長把亂糟糟的房間收拾得一塵不染？' },
+            { id: 78, cat: 'everyone', text: '【問大家】請大家說出自己今年最想解鎖的一項新成就！' },
+            { id: 79, cat: 'everyone', text: '【問大家】大家覺得誰如果去開車導航，最容易不小心迷路？' },
+            { id: 80, cat: 'everyone', text: '【問大家】請大家用一句話總結今天聚在一起的感覺！' },
 
-            // 瘋狂假設 (50題)
-            { id: 101, cat: 'funny', text: '如果人類必須選擇變成一種動物過一生，你會選哪種？' },
-            { id: 102, cat: 'funny', text: '如果世界明天就要毀滅，你今天最後一餐想吃什麼？' },
-            { id: 103, cat: 'funny', text: '給你一千萬，但代價是五年不能用手機與網路，你願意嗎？' },
-            { id: 104, cat: 'funny', text: '如果可以擁有一個超能力，但代價是每天必須倒立一小時，你接受嗎？' },
-            { id: 105, cat: 'funny', text: '如果你可以隨意穿越到任何一個朝代或年代，你想去哪裡？' },
-            { id: 106, cat: 'funny', text: '如果必須終身吃同一種口味的泡麵，你會選哪一款？' },
-            { id: 107, cat: 'funny', text: '如果每說一句謊話鼻子就會變長一公分，你覺得你撐得過一天嗎？' },
-            { id: 108, cat: 'funny', text: '給你無限吃不胖的體質，但代價是每天必須跑五公里，你願意嗎？' },
-            { id: 109, cat: 'funny', text: '如果可以變成一個虛構電影角色一個星期，你想當誰？' },
-            { id: 110, cat: 'funny', text: '如果家裡養的寵物突然會開口說話，你最怕它對別人爆料你的什麼祕密？' },
-            { id: 111, cat: 'funny', text: '如果必須選擇一輩子只能用左手（或非慣用手）做事，你覺得生活會變怎樣？' },
-            { id: 112, cat: 'funny', text: '如果走在路上突然遇到外星人邀約你外太空一日遊，你會去嗎？' },
-            { id: 113, cat: 'funny', text: '如果可以跟一個知名卡通人物交換衣櫃一個月，你想跟誰交換？' },
-            { id: 114, cat: 'funny', text: '如果這輩子只能看一部電影，你會希望是哪一部？' },
-            { id: 115, cat: 'funny', text: '如果必須在夏天穿羽絨衣或冬天穿比基尼二選一，你選哪個？' },
-            { id: 116, cat: 'funny', text: '如果可以讓身上某個部位變成彈簧，你希望是哪裡？' },
-            { id: 117, cat: 'funny', text: '如果中了樂透頭獎十億，你第一個告訴的人會是誰？' },
-            { id: 118, cat: 'funny', text: '如果必須跟在場其中一個人靈魂對調一天，你選誰？' },
-            { id: 119, cat: 'funny', text: '如果你的生活被拍成一部搞笑喜劇電影，片名會叫什麼？' },
-            { id: 120, cat: 'funny', text: '如果每天早上鬧鐘響起時，必須跳一首完整熱舞才能按掉，你覺得如何？' },
-            { id: 121, cat: 'funny', text: '如果可以擁有魔法掃帚在天空飛，你上班上課會想騎它嗎？' },
-            { id: 122, cat: 'funny', text: '如果必須把手機桌布換成在場隨便一個人最丑的照片一年，你願意嗎？' },
-            { id: 123, cat: 'funny', text: '如果可以跟動物溝通，你最想先跟哪種動物聊天？' },
-            { id: 124, cat: 'funny', text: '如果時間可以暫停一分鐘，你第一件想做的事是什麼？' },
-            { id: 125, cat: 'funny', text: '如果必須在身上刺一個搞笑的刺青（例如一根香蕉），你願意嗎？' },
-            { id: 126, cat: 'funny', text: '如果可以把全世界的蔬菜都變成甜點，你最希望哪種菜變蛋糕？' },
-            { id: 127, cat: 'funny', text: '如果每走一步路都會發出滑稽的屁聲，你還敢出門嗎？' },
-            { id: 128, cat: 'funny', text: '如果能跟一個外星文明建立網路連線，你想傳的第一個表情符號是什麼？' },
-            { id: 129, cat: 'funny', text: '如果可以選擇一輩子都不用洗頭或一輩子不用洗澡，你選哪個？' },
-            { id: 130, cat: 'funny', text: '如果你的夢境可以像看電影一樣選集撥放，你想看哪一晚的夢？' },
-            { id: 131, cat: 'funny', text: '如果可以合法複製一個自己幫你上班上課，你覺得會天下大亂嗎？' },
-            { id: 132, cat: 'funny', text: '如果必須用唱的來代替平常說話，你覺得你能撐多久？' },
-            { id: 133, cat: 'funny', text: '如果可以把世界上一種討厭的聲音永遠消除，你選哪種聲音？' },
-            { id: 134, cat: 'funny', text: '如果天上下的雨不是水，而是你最喜歡的飲料，你會希望是什麼？' },
-            { id: 135, cat: 'funny', text: '如果可以跟童話故事裡的壞巫婆交換一天命運，你想體驗看看嗎？' },
-            { id: 136, cat: 'funny', text: '如果規定每個人每天必須講三個爛笑話才能吃飯，你會破產嗎？' },
-            { id: 137, cat: 'funny', text: '如果可以隱形去偷聽別人講你的八卦，你敢去聽嗎？' },
-            { id: 138, cat: 'funny', text: '如果身上隨時會長出貓耳朵，你會大方露出來還是戴帽子遮住？' },
-            { id: 139, cat: 'funny', text: '如果可以讓時光倒流五分鐘，你最想收回剛剛說過的一句話是什麼？' },
-            { id: 140, cat: 'funny', text: '如果必須挑選一個神話怪獸當坐騎，你選獨角獸還是噴火龍？' },
-            { id: 141, cat: 'funny', text: '如果你的雙手變成剪刀手愛德華的剪刀，你覺得生活最困擾的是什麼？' },
-            { id: 142, cat: 'funny', text: '如果可以一覺醒來外國語言自動精通，你希望是哪種語言？' },
-            { id: 143, cat: 'funny', text: '如果每吃一口甜食就會長高一公分，你願意變多高？' },
-            { id: 144, cat: 'funny', text: '如果必須選擇跟一隻喪屍當室友，你對它有什麼基本要求？' },
-            { id: 145, cat: 'funny', text: '如果可以把全人類的鬧鐘鈴聲統一改成鴨子叫聲，你覺得世界會變怎樣？' },
-            { id: 146, cat: 'funny', text: '如果隨身攜帶一個魔法寶箱，打開裡面一定要裝一樣荒謬的東西，會是什麼？' },
-            { id: 147, cat: 'funny', text: '如果可以選擇在月球上蓋一間度假小屋，你想邀請誰去住？' },
-            { id: 148, cat: 'funny', text: '如果必須跟一個機器人結婚，你希望它具備什麼強大功能？' },
-            { id: 149, cat: 'funny', text: '如果走在路上突然被通緝是因為太可愛，你覺得自己值多少懸賞金？' },
-            { id: 150, cat: 'funny', text: '如果明天一睜眼發現自己變成一隻慵懶的大貓熊，你第一天想幹嘛？' },
+            // 特徵指認 (40題)
+            { id: 81, cat: 'trait', text: '【特徵指認】請大家指認：現場誰是個標準的「夜貓子」，常在半夜還很有精神？' },
+            { id: 82, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對美食最講究，每次點餐都能精準點到最好吃的？' },
+            { id: 83, cat: 'trait', text: '【特徵指認】請大家指認：現場誰的手機桌面或房間永遠保持得最整齊乾淨？' },
+            { id: 84, cat: 'trait', text: '【特徵指認】請大家指認：現場誰笑點最低，隨便講個冷笑話都能笑超久？' },
+            { id: 85, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常喝手搖飲或對甜點毫無抵抗力？' },
+            { id: 86, cat: 'trait', text: '【特徵指認】請大家指認：現場誰是個隱性路癡，方向感需要大家特別照顧？' },
+            { id: 87, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果開始聊自己熱愛的興趣（如手作、音樂、動漫），眼睛會發光？' },
+            { id: 88, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最重視生活儀式感，連過節或吃早餐都要很講究？' },
+            { id: 89, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時默默運動健身最勤勞、體力最好？' },
+            { id: 90, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果遇到突發狀況，反應最冷靜、最有條理？' },
+            { id: 91, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長手作或對設計、美感非常有要求？' },
+            { id: 92, cat: 'trait', text: '【特徵指認】請大家指認：現場誰包包裡永遠備有最多實用小物（如濕紙巾、薄荷涼糖、充電線）？' },
+            { id: 93, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最喜歡嘗試各種新科技、新工具或自動化小物？' },
+            { id: 94, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果去看電影或聽演唱會，最容易感動到哭出來？' },
+            { id: 95, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對流行音樂或歌手（如周深等唱將）最內行？' },
+            { id: 96, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最懂得享受獨處時光，一個人也能把日子過得很精彩？' },
+            { id: 97, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時挑選東西最理性、會做足功課才下手？' },
+            { id: 98, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果養寵物或看到動物，會直接融化變成大寶寶？' },
+            { id: 99, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常關注環保、永續或綠能生活相關議題？' },
+            { id: 100, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果開始規劃旅遊行程，會排得最豐富緊湊？' },
+            { id: 101, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長記住朋友的生日或各種貼心小細節？' },
+            { id: 102, cat: 'trait', text: '【特徵指認】請大家指認：現場誰拍照技術最好，總是大家公認的御用攝影師？' },
+            { id: 103, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對各國語言或異國文化非常有興趣？' },
+            { id: 104, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果逛文具店或選筆記本，會逛到捨不得出來？' },
+            { id: 105, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常買一些可愛的貼紙或療癒小物來裝飾生活？' },
+            { id: 106, cat: 'trait', text: '【特徵指認】請大家指認：現場誰說起故事來繪聲繪影，最會炒熱氣氛？' },
+            { id: 107, cat: 'trait', text: '【特徵指認】請大家指認：現場誰平時飲食吃得最健康、對原型食物很有堅持？' },
+            { id: 108, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果遇到不公或不合理的事，最有正義感會站出來？' },
+            { id: 109, cat: 'trait', text: '【特徵指認】請大家指認：現場誰穿搭或居家風格最有個人特色、走簡約質感風？' },
+            { id: 110, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常給別人溫暖的擁抱或心靈上的鼓勵？' },
+            { id: 111, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果開始寫程式或弄電腦設定，可以專注到忘記時間？' },
+            { id: 112, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最喜歡收集各式各樣的杯子、茶具或保溫瓶？' },
+            { id: 113, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最常在聚會中擔任時間掌控或行程總召的角色？' },
+            { id: 114, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對於歷史或國際時事非常有研究、涉獵極廣？' },
+            { id: 115, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果聽到懷舊老歌，會馬上跟著哼唱甚至掉入回憶？' },
+            { id: 116, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長把冰箱剩餘食材變成一頓美味大餐？' },
+            { id: 117, cat: 'trait', text: '【特徵指認】請大家指認：現場誰如果看到特別的植物或花草會忍不住停下來欣賞？' },
+            { id: 118, cat: 'trait', text: '【特徵指認】請大家指認：現場誰對聲音或音樂的品質要求最高、耳朵最挑？' },
+            { id: 119, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最擅長鼓勵沮喪的朋友、像心靈導師一樣？' },
+            { id: 120, cat: 'trait', text: '【特徵指認】請大家指認：現場誰最期待每一次的小旅行，對生活充滿好奇心？' },
 
-            // 生活觀點 (50題)
-            { id: 151, cat: 'life', text: '你覺得現代人最缺乏的能力是什麼？' },
-            { id: 152, cat: 'life', text: '你通常是如何在工作（或學業）與私人生活之間取得平衡的？' },
-            { id: 153, cat: 'life', text: '你覺得社群媒體（如 Instagram / Facebook）對你的人生帶主要是利大於弊還是弊大於利？' },
-            { id: 154, cat: 'life', text: '你心目中理想的居住城市具備哪些特質？' },
-            { id: 155, cat: 'life', text: '你平常買東西時，最容易被哪種行銷手法或特色吸引？' },
-            { id: 156, cat: 'life', text: '你覺得「極簡主義」或斷捨離的生活方式適合你嗎？' },
-            { id: 157, cat: 'life', text: '你平常有記帳或管理財務的習慣嗎？對理財有什麼看法？' },
-            { id: 158, cat: 'life', text: '你覺得人工智慧（AI）在未來會徹底改變人類的生活嗎？你期待嗎？' },
-            { id: 159, cat: 'life', text: '你平時喜歡自己動手做東西（如手作、烹飪、修繕），還是直接購買現成的？' },
-            { id: 160, cat: 'life', text: '你覺得一個溫馨舒適的居家空間最不可或缺的元素是什麼？' },
-            { id: 161, cat: 'life', text: '你有沒有自己堅持每天或每週都會執行的日常儀式感？' },
-            { id: 162, cat: 'life', text: '你覺得要培養一項新習慣，最難克服的是什麼？' },
-            { id: 163, cat: 'life', text: '你平時在飲食上會特別注重健康低卡、原型食物，還是完全隨心所欲？' },
-            { id: 164, cat: 'life', text: '你休閒時比較喜歡戶外大自然踏青，還是室內靜態活動？' },
-            { id: 165, cat: 'life', text: '你覺得科技的進步是讓人類更自由，還是被綁得更緊？' },
-            { id: 166, cat: 'life', text: '你通常會透過什麼管道吸收新知或國際時事？' },
-            { id: 167, cat: 'life', text: '你覺得一個人出國旅行和跟團旅遊最大的差別在哪裡？' },
-            { id: 168, cat: 'life', text: '你在規劃行程或旅遊時，是屬於事前詳細排滿派，還是隨性隨走派？' },
-            { id: 169, cat: 'life', text: '你覺得擁有自己的興趣嗜好對生活有多重要？' },
-            { id: 170, cat: 'life', text: '你覺得現代人要維持良好的睡眠品質最需要注意什麼？' },
-            { id: 171, cat: 'life', text: '你對環保議題（如減塑、節能減碳）平時實踐的程度如何？' },
-            { id: 172, cat: 'life', text: '你覺得「居家辦公（WFH）」跟去辦公室上班，哪一種模式比較高效率？' },
-            { id: 173, cat: 'life', text: '你喜歡聽哪種類型的音樂來陪伴日常或專注工作？' },
-            { id: 174, cat: 'life', text: '你有沒有定期整理房間或清理手機檔案的強迫症？' },
-            { id: 175, cat: 'life', text: '你覺得面對網路上的不同意見或爭論，最好的態度是什麼？' },
-            { id: 176, cat: 'life', text: '你平時會不會嘗試學習新的語言或技能來充實自己？' },
-            { id: 177, cat: 'life', text: '你覺得在人際交往中，「誠實」跟「善意的謊言」哪一個比較重要？' },
-            { id: 178, cat: 'life', text: '你覺得台灣的美食文化中最讓你驕傲的是哪一項？' },
-            { id: 179, cat: 'life', text: '你覺得年紀增長帶給你最大的收穫或禮物是什麼？' },
-            { id: 180, cat: 'life', text: '你平常會關注環保電動車、綠能或是永續發展相關的科技發展嗎？' },
-            { id: 181, cat: 'life', text: '你覺得自己是一個擅長做家務、把家裡打理得井井有條的人嗎？' },
-            { id: 182, cat: 'life', text: '你對咖啡廳的氛圍有特別的要求嗎？通常去咖啡廳都做什麼？' },
-            { id: 183, cat: 'life', text: '你覺得學習程式設計或自動化工具對日常生活有幫助嗎？' },
-            { id: 184, cat: 'life', text: '你平時挑選衣服或選購日用品時，最重視的是質感、價格還是功能？' },
-            { id: 185, cat: 'life', text: '你覺得閱讀實體書跟電子書哪一種比較有感覺？' },
-            { id: 186, cat: 'life', text: '你有沒有自己特別迷戀的零食、甜點或療癒下午茶？' },
-            { id: 187, cat: 'life', text: '你覺得「儀式感」對生活或節日慶祝有必要嗎？' },
-            { id: 188, cat: 'life', text: '你對於老後生活有沒有什麼具體的想像或規劃？' },
-            { id: 189, cat: 'life', text: '你覺得要如何保持對生活的好奇心與熱情？' },
-            { id: 190, cat: 'life', text: '你平時在做重大決定時，習慣依賴直覺還是理性分析？' },
-            { id: 191, cat: 'life', text: '你覺得與家人相處時，最重要的是什麼溝通方式？' },
-            { id: 192, cat: 'life', text: '你對於未來十年的科技發展最期待看見什麼突破？' },
-            { id: 193, cat: 'life', text: '你覺得擁有一位懂你的知心好友，人生有什麼不同？' },
-            { id: 194, cat: 'life', text: '你平時會不會為自己設定年度目標或里程碑？' },
-            { id: 195, cat: 'life', text: '你覺得生活中的「小確幸」通常來自於哪些微小的瞬間？' },
-            { id: 196, cat: 'life', text: '你對台灣在國際局勢或島鏈安全議題上有什麼樣的關注？' },
-            { id: 197, cat: 'life', text: '你覺得一個好的領導者或主管需要具備什麼特質？' },
-            { id: 198, cat: 'life', text: '你平時紓解疲勞最有效的方法是按摩、泡澡還是大睡一覺？' },
-            { id: 199, cat: 'life', text: '你覺得網路交友跟現實認識朋友最大的差別在哪裡？' },
-            { id: 200, cat: 'life', text: '如果現在讓你對十年後的自己說一句話，你會說什麼？' }
+            // 靈魂深聊 (40題)
+            { id: 121, cat: 'deep', text: '你覺得自己長大後改變最多的一個特質是什麼？' },
+            { id: 122, cat: 'deep', text: '如果能回到過去給10年前的自己一句話，你會說什麼？' },
+            { id: 123, cat: 'deep', text: '你心目中理想的自在生活狀態是什麼樣子？' },
+            { id: 124, cat: 'deep', text: '做過最勇敢、最不後悔的決定是什麼？' },
+            { id: 125, cat: 'deep', text: '你覺得人生中最重要的一項核心價值觀是什麼？' },
+            { id: 126, cat: 'deep', text: '當你面臨巨大壓力或挫折時，通常怎麼調適自己？' },
+            { id: 127, cat: 'deep', text: '你覺得真正的「成熟」代表著什麼？' },
+            { id: 128, cat: 'deep', text: '你人生中影響你最深的人是誰？為什麼？' },
+            { id: 129, cat: 'deep', text: '如果可以向宇宙許一個願望，且一定會實現，你會許什麼？' },
+            { id: 130, cat: 'deep', text: '你覺得自己最容易被什麼樣的人事物感動？' },
+            { id: 131, cat: 'deep', text: '回顧過去一年，你覺得自己最大的成長是什麼？' },
+            { id: 132, cat: 'deep', text: '你心中最大的恐懼或擔憂是什麼？' },
+            { id: 133, cat: 'deep', text: '你覺得友情或愛情中最珍貴的特質是什麼？' },
+            { id: 134, cat: 'deep', text: '如果五年後的自己來看你，你希望他/她對現在的你說什麼？' },
+            { id: 135, cat: 'deep', text: '你覺得自己是一個容易原諒別人還是記仇的人？' },
+            { id: 136, cat: 'deep', text: '你認為金錢與快樂之間最大的平衡點是什麼？' },
+            { id: 137, cat: 'deep', text: '你做過最瘋狂、最衝動的事情是什麼？' },
+            { id: 138, cat: 'deep', text: '你覺得自己內心深處是一個樂觀還是悲觀的人？' },
+            { id: 139, cat: 'deep', text: '如果必須放棄一項社群軟體或通訊軟體，你捨得哪一個？' },
+            { id: 140, cat: 'deep', text: '你覺得自己目前的人生清單最想完成的事是什麼？' },
+            { id: 141, cat: 'deep', text: '你在人際關係中最不能接受的雷點是什麼？' },
+            { id: 142, cat: 'deep', text: '你覺得自己是一個擅長表達情緒，還是習慣壓抑的人？' },
+            { id: 143, cat: 'deep', text: '如果能重新選擇一次大學科系或職業跑道，你會做不同選擇嗎？' },
+            { id: 144, cat: 'deep', text: '你覺得什麼樣的時刻讓妳覺得自己最具有價值？' },
+            { id: 145, cat: 'deep', text: '你最希望身邊的朋友怎麼形容你？' },
+            { id: 146, cat: 'deep', text: '你覺得自己對成功的定義是什麼？' },
+            { id: 147, cat: 'deep', text: '你有沒有什麼一直想做卻遲遲不敢跨出去的事？' },
+            { id: 148, cat: 'deep', text: '你覺得人與人之間最難建立的信任是什麼？' },
+            { id: 149, cat: 'deep', text: '你心目中完美的週末陪伴對象與情境是什麼？' },
+            { id: 150, cat: 'deep', text: '你覺得自己最需要學會的一門人生功課是什麼？' },
+            { id: 151, cat: 'deep', text: '如果明天世界就要停止運轉，你今天最想見的人是誰？' },
+            { id: 152, cat: 'deep', text: '你覺得自己是一個浪漫主義者還是現實主義者？' },
+            { id: 153, cat: 'deep', text: '你有沒有經歷過某個低潮，卻反而讓你變得更強大？' },
+            { id: 154, cat: 'deep', text: '你覺得在團隊合作中，自己通常扮演什麼角色？' },
+            { id: 155, cat: 'deep', text: '你心目中理想的退休生活是長怎樣的？' },
+            { id: 156, cat: 'deep', text: '你覺得自己是一個懂得享受當下的人嗎？' },
+            { id: 157, cat: 'deep', text: '你面對離別或失去時，通常會用什麼方式調適？' },
+            { id: 158, cat: 'deep', text: '你覺得保持內心平靜最有效的方法是什麼？' },
+            { id: 159, cat: 'deep', text: '你對「命運」這兩個字有什麼看法？' },
+            { id: 160, cat: 'deep', text: '你覺得自己哪一個特質最讓你感到驕傲？' },
+
+            // 瘋狂假設 (40題)
+            { id: 161, cat: 'funny', text: '如果人類必須選擇變成一種動物過一生，你會選哪種？' },
+            { id: 162, cat: 'funny', text: '如果世界明天就要毀滅，你今天最後一餐想吃什麼？' },
+            { id: 163, cat: 'funny', text: '給你一千萬，但代價是五年不能用手機與網路，你願意嗎？' },
+            { id: 164, cat: 'funny', text: '如果可以擁有一個超能力，但代價是每天必須倒立一小時，你接受嗎？' },
+            { id: 165, cat: 'funny', text: '如果你可以隨意穿越到任何一個朝代或年代，你想去哪裡？' },
+            { id: 166, cat: 'funny', text: '如果必須終身吃同一種口味的泡麵，你會選哪一款？' },
+            { id: 167, cat: 'funny', text: '如果每說一句謊話鼻子就會變長一公分，你覺得你撐得過一天嗎？' },
+            { id: 168, cat: 'funny', text: '給你無限吃不胖的體質，但代價是每天必須跑五公里，你願意嗎？' },
+            { id: 169, cat: 'funny', text: '如果可以變成一個虛構電影角色一個星期，你想當誰？' },
+            { id: 170, cat: 'funny', text: '如果家裡養的寵物突然會開口說話，你最怕它對別人爆料你的什麼祕密？' },
+            { id: 171, cat: 'funny', text: '如果必須選擇一輩子只能用左手做事，你覺得生活會變怎樣？' },
+            { id: 172, cat: 'funny', text: '如果走在路上突然遇到外星人邀約你外太空一日遊，你會去嗎？' },
+            { id: 173, cat: 'funny', text: '如果可以跟一個知名卡通人物交換衣櫃一個月，你想跟誰交換？' },
+            { id: 174, cat: 'funny', text: '如果這輩子只能看一部電影，你會希望是哪一部？' },
+            { id: 175, cat: 'funny', text: '如果必須在夏天穿羽絨衣或冬天穿比基尼二選一，你選哪個？' },
+            { id: 176, cat: 'funny', text: '如果可以讓身上某個部位變成彈簧，你希望是哪裡？' },
+            { id: 177, cat: 'funny', text: '如果中了樂透頭獎十億，你第一個告訴的人會是誰？' },
+            { id: 178, cat: 'funny', text: '如果必須跟在場其中一個人靈魂對調一天，你選誰？' },
+            { id: 179, cat: 'funny', text: '如果你的生活被拍成一部搞笑喜劇電影，片名會叫什麼？' },
+            { id: 180, cat: 'funny', text: '如果每天早上鬧鐘響起時，必須跳一首完整熱舞才能按掉，你覺得如何？' },
+            { id: 181, cat: 'funny', text: '如果可以擁有魔法掃帚在天空飛，你上班上課會想騎它嗎？' },
+            { id: 182, cat: 'funny', text: '如果必須把手機桌布換成在場隨便一個人最丑的照片一年，你願意嗎？' },
+            { id: 183, cat: 'funny', text: '如果可以跟動物溝通，你最想先跟哪種動物聊天？' },
+            { id: 184, cat: 'funny', text: '如果時間可以暫停一分鐘，你第一件想做的事是什麼？' },
+            { id: 185, cat: 'funny', text: '如果必須在身上刺一個搞笑的刺青，你願意嗎？' },
+            { id: 186, cat: 'funny', text: '如果可以把全世界的蔬菜都變成甜點，你最希望哪種菜變蛋糕？' },
+            { id: 187, cat: 'funny', text: '如果每走一步路都會發出滑稽的屁聲，你還敢出門嗎？' },
+            { id: 188, cat: 'funny', text: '如果能跟一個外星文明建立網路連線，你想傳的第一個表情符號是什麼？' },
+            { id: 189, cat: 'funny', text: '如果可以選擇一輩子都不用洗頭或一輩子不用洗澡，你選哪個？' },
+            { id: 190, cat: 'funny', text: '如果你的夢境可以像看電影一樣選集撥放，你想看哪一晚的夢？' },
+            { id: 191, cat: 'funny', text: '如果可以合法複製一個自己幫你上班上課，你覺得會天下大亂嗎？' },
+            { id: 192, cat: 'funny', text: '如果必須用唱的來代替平常說話，你覺得你能撐多久？' },
+            { id: 193, cat: 'funny', text: '如果可以把世界上一種討厭的聲音永遠消除，你選哪種聲音？' },
+            { id: 194, cat: 'funny', text: '如果天上下的雨不是水，而是你最喜歡的飲料，你會希望是什麼？' },
+            { id: 195, cat: 'funny', text: '如果可以跟童話故事裡的壞巫婆交換一天命運，你想體驗看看嗎？' },
+            { id: 196, cat: 'funny', text: '如果規定每個人每天必須講三個爛笑話才能吃飯，你會破產嗎？' },
+            { id: 197, cat: 'funny', text: '如果可以隱形去偷聽別人講你的八卦，你敢去聽嗎？' },
+            { id: 198, cat: 'funny', text: '如果身上隨時會長出貓耳朵，你會大方露出來還是戴帽子遮住？' },
+            { id: 199, cat: 'funny', text: '如果可以讓時光倒流五分鐘，你最想收回剛剛說過的一句話是什麼？' },
+            { id: 200, cat: 'funny', text: '如果必須挑選一個神話怪獸當坐騎，你選獨角獸還是噴火龍？' }
         ];
 
-        // 從 LocalStorage 載入資料（若沒有則使用完整 200 題並寫入）
+        // 載入 localStorage 題庫與玩家名單
         let questions = JSON.parse(localStorage.getItem('party_questions'));
         if (!questions || questions.length === 0) {
             questions = defaultQuestions;
             localStorage.setItem('party_questions', JSON.stringify(questions));
         }
+
+        let players = JSON.parse(localStorage.getItem('party_players')) || [];
 
         let currentCategory = 'all';
         let currentFiltered = [...questions];
@@ -310,10 +339,52 @@
 
         const catNames = {
             'icebreaker': '輕鬆破冰',
+            'everyone': '問大家',
+            'trait': '特徵指認',
             'deep': '靈魂深聊',
-            'funny': '瘋狂假設',
-            'life': '生活觀點'
+            'funny': '瘋狂假設'
         };
+
+        // 玩家管理相關函數
+        function renderPlayers() {
+            const container = document.getElementById('player-chips');
+            container.innerHTML = '';
+            document.getElementById('player-count').innerText = `已加入 ${players.length} 人`;
+            
+            if (players.length === 0) {
+                container.innerHTML = `<span class="text-[11px] text-slate-500 italic">尚未新增玩家，抽題時將不會隨機點名。</span>`;
+                return;
+            }
+
+            players.forEach((name, index) => {
+                const chip = document.createElement('div');
+                chip.className = "bg-slate-900 border border-teal-500/30 text-teal-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm";
+                chip.innerHTML = `
+                    <span>${name}</span>
+                    <button onclick="removePlayer(${index})" class="text-slate-400 hover:text-rose-400 font-bold text-[10px]">×</button>
+                `;
+                container.appendChild(chip);
+            });
+            localStorage.setItem('party_players', JSON.stringify(players));
+        }
+
+        function addPlayer() {
+            const input = document.getElementById('player-input');
+            const name = input.value.trim();
+            if (!name) return;
+            if (players.includes(name)) {
+                alert('這位玩家已經在名單中囉！');
+                return;
+            }
+            players.push(name);
+            input.value = '';
+            renderPlayers();
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            renderPlayers();
+        }
 
         // 切換分頁
         function switchTab(tab) {
@@ -337,7 +408,7 @@
             }
         }
 
-        // 篩選分類與更新抽題
+        // 篩選分類
         function filterCategory(cat) {
             currentCategory = cat;
             if (cat === 'all') {
@@ -348,7 +419,6 @@
             currentIndex = 0;
             updateCard();
 
-            // 更新按鈕樣式
             document.querySelectorAll('.cat-filter-btn').forEach(btn => {
                 if (btn.getAttribute('data-cat') === cat) {
                     btn.className = "cat-filter-btn px-3 py-1.5 rounded-lg text-xs bg-teal-500 text-slate-950 font-semibold transition";
@@ -362,6 +432,7 @@
             if (currentFiltered.length === 0) {
                 document.getElementById('question-text').innerText = "此分類目前沒有題目，請至題庫管理新增！";
                 document.getElementById('category-badge').innerText = "類別：空";
+                document.getElementById('target-player-badge').classList.add('hidden');
                 document.getElementById('q-index').innerText = 0;
                 document.getElementById('q-total').innerText = 0;
                 return;
@@ -371,6 +442,16 @@
             document.getElementById('category-badge').innerText = `類別：${catNames[q.cat] || '自訂'}`;
             document.getElementById('q-index').innerText = currentIndex + 1;
             document.getElementById('q-total').innerText = currentFiltered.length;
+
+            // 隨機抽題時，若有設定玩家且題目不是「問大家」，隨機點名一位玩家
+            const playerBadge = document.getElementById('target-player-badge');
+            if (players.length > 0 && q.cat !== 'everyone') {
+                const randomPlayer = players[Math.floor(Math.random() * players.length)];
+                document.getElementById('drawn-player-name').innerText = randomPlayer;
+                playerBadge.classList.remove('hidden');
+            } else {
+                playerBadge.classList.add('hidden');
+            }
         }
 
         function nextQuestion() {
@@ -385,7 +466,7 @@
             updateCard();
         }
 
-        // 渲染管理清單 (CRUD: Read)
+        // 管理清單 (CRUD)
         function renderQuestionList() {
             const container = document.getElementById('question-list-container');
             container.innerHTML = '';
@@ -393,7 +474,7 @@
                 container.innerHTML = `<p class="text-center text-slate-500 text-xs py-4">目前沒有任何題目</p>`;
                 return;
             }
-            questions.forEach((q, index) => {
+            questions.forEach((q) => {
                 const item = document.createElement('div');
                 item.className = "bg-slate-800 border border-slate-700 p-3 rounded-xl flex justify-between items-center gap-3";
                 item.innerHTML = `
@@ -410,7 +491,6 @@
             });
         }
 
-        // 開啟 Modal (Create / Update)
         function openModal(id = null) {
             document.getElementById('crud-modal').classList.remove('hidden');
             if (id) {
@@ -433,7 +513,10 @@
             document.getElementById('crud-modal').classList.add('hidden');
         }
 
-        // 儲存題目 (Create & Update)
+        function editQuestion(id) {
+            openModal(id);
+        }
+
         function saveQuestion() {
             const id = document.getElementById('edit-id').value;
             const cat = document.getElementById('modal-cat').value;
@@ -445,14 +528,12 @@
             }
 
             if (id) {
-                // 修改 (Update)
                 const index = questions.findIndex(item => item.id == id);
                 if (index !== -1) {
                     questions[index].cat = cat;
                     questions[index].text = text;
                 }
             } else {
-                // 新增 (Create)
                 const newId = questions.length > 0 ? Math.max(...questions.map(q => q.id)) + 1 : 1;
                 questions.unshift({ id: newId, cat: cat, text: text });
             }
@@ -460,18 +541,21 @@
             localStorage.setItem('party_questions', JSON.stringify(questions));
             closeModal();
             renderQuestionList();
+            filterCategory(currentCategory);
         }
 
-        // 刪除題目 (Delete)
         function deleteQuestion(id) {
             if (confirm('確定要刪除這道題目嗎？')) {
                 questions = questions.filter(item => item.id !== id);
+                localStorage.setItem('party_questions', JSON.g(questions));
                 localStorage.setItem('party_questions', JSON.stringify(questions));
                 renderQuestionList();
+                filterCategory(currentCategory);
             }
         }
 
-        // 初始化載入第一張卡片
+        // 初始化
+        renderPlayers();
         updateCard();
     </script>
 </body>
